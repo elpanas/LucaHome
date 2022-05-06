@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
 using ProvaRest.Models;
 using ProvaRest.Services;
 
@@ -12,7 +13,7 @@ namespace ProvaRest.Controllers
 
         public CommentController(CommentService CommentsService) =>
             _commentsService = CommentsService;
-
+        /*
         [HttpOptions("id/{id}")]
         public IActionResult PreflightRoute(string id)
         {
@@ -24,14 +25,17 @@ namespace ProvaRest.Controllers
         {
             return NoContent();
         }
+        */
 
+        [EnableCors]
         [HttpGet("id/{id}")]
         public async Task<ActionResult<Comment>> Get(string id)
         {
             var comment = await _commentsService.GetComment(id);
             return Ok(comment);
-        }            
+        }
 
+        [EnableCors]
         [HttpPost]
         public async Task<IActionResult> Post(Comment comment)
         {
