@@ -10,8 +10,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
                       {
-                          policy.WithOrigins("https://lucapanariello.altervista.org",
-                                              "https://lucapanariello.altervista.org/comments");
+                          policy.WithOrigins("https://lucapanariello.altervista.org");
                       });
 });
 
