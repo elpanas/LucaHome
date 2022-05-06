@@ -5,8 +5,9 @@ using ProvaRest.Services;
 
 namespace ProvaRest.Controllers
 {
-    [ApiController]
+    [EnableCors("My Policy")]
     [Route("api/comment")]
+    [ApiController]    
     public class CommentController : ControllerBase
     {
         private readonly CommentService _commentsService;
@@ -14,15 +15,13 @@ namespace ProvaRest.Controllers
         public CommentController(CommentService CommentsService) =>
             _commentsService = CommentsService;
 
-        [EnableCors]
         [HttpGet("id/{id}")]
         public async Task<ActionResult<Comment>> Get(string id)
         {
             var comment = await _commentsService.GetComment(id);
             return Ok(comment);
         }
-
-        [EnableCors]
+       
         [HttpPost]
         public async Task<IActionResult> Post(Comment comment)
         {
