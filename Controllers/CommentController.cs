@@ -13,19 +13,6 @@ namespace ProvaRest.Controllers
 
         public CommentController(CommentService CommentsService) =>
             _commentsService = CommentsService;
-        /*
-        [HttpOptions("id/{id}")]
-        public IActionResult PreflightRoute(string id)
-        {
-            return NoContent();
-        }
-
-        [HttpOptions]
-        public IActionResult PreflightRoute()
-        {
-            return NoContent();
-        }
-        */
 
         [EnableCors]
         [HttpGet("id/{id}")]
