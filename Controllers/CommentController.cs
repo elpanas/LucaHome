@@ -21,7 +21,7 @@ namespace ProvaRest.Controllers
         {
             var resp = new HttpResponseMessage(HttpStatusCode.OK);
             resp.Headers.Add("Access-Control-Allow-Origin", "*");
-            resp.Headers.Add("Access-Control-Allow-Methods", "POST, GET,DELETE");
+            resp.Headers.Add("Access-Control-Allow-Methods", "POST,GET,DELETE");
 
             return resp;
         }
