@@ -9,8 +9,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: "My Policy",
                       policy =>
                       {
-                          policy.WithOrigins("");
-                          policy.AllowAnyMethod();
+                          policy.WithOrigins("https://lucapanariello.altervista.org");                          
                       });
 });
 
