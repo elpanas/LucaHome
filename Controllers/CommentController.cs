@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ProvaRest.Models;
 using ProvaRest.Services;
+using System.Net;
 
 namespace ProvaRest.Controllers
 {
@@ -14,6 +15,16 @@ namespace ProvaRest.Controllers
 
         public CommentController(CommentService CommentsService) =>
             _commentsService = CommentsService;
+
+        [AcceptVerbs("OPTIONS")]
+        public HttpResponseMessage Options()
+        {
+            var resp = new HttpResponseMessage(HttpStatusCode.OK);
+            resp.Headers.Add("Access-Control-Allow-Origin", "*");
+            resp.Headers.Add("Access-Control-Allow-Methods", "POST, GET,DELETE");
+
+            return resp;
+        }
 
         [HttpGet("id/{id}")]
         public async Task<ActionResult<Comment>> Get(string id)
