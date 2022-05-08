@@ -15,7 +15,7 @@ namespace ProvaRest.Controllers
 
         public CommentController(CommentService CommentsService) =>
             _commentsService = CommentsService;
-
+        /*
         [AcceptVerbs("OPTIONS")]
         public HttpResponseMessage Options()
         {
@@ -25,7 +25,7 @@ namespace ProvaRest.Controllers
 
             return resp;
         }
-
+        */
         [HttpGet("id/{id}")]
         public async Task<ActionResult<Comment>> Get(string id)
         {
