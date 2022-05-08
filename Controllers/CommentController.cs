@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Cors;
+﻿//using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using ProvaRest.Models;
 using ProvaRest.Services;
@@ -6,7 +6,7 @@ using System.Net;
 
 namespace ProvaRest.Controllers
 {
-    [EnableCors("My Policy")]
+    //[EnableCors("My Policy")]
     [Route("api/comment")]
     [ApiController]    
     public class CommentController : ControllerBase
