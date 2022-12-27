@@ -3,17 +3,7 @@ using ProvaRest.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: "My Policy",
-                      policy =>
-                      {
-                          policy.WithOrigins("https://lucapanariello.altervista.org");
-                          policy.AllowAnyMethod();
-                          policy.AllowAnyHeader();
-                      });
-});
+builder.Services.AddCors();
 
 // Add services to the container.
 builder.Services.Configure<CommentDatabaseSettings>(
@@ -37,10 +27,11 @@ if (app.Environment.IsDevelopment())
 
 //app.UseHttpsRedirection();
 
-app.UseCors();
+app.UseCors(options =>
+    options.WithOrigins("https://lucapanariello.altervista.org")
+           .WithMethods("POST", "PUT", "DELETE", "GET")
+           .AllowAnyHeader());
 
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ProvaRest.Models;
 using ProvaRest.Services;
-using System.Net;
 
 namespace ProvaRest.Controllers
 {
@@ -16,15 +15,41 @@ namespace ProvaRest.Controllers
         public CommentController(CommentService CommentsService) =>
             _commentsService = CommentsService;
         
+        private async Task<bool> CheckComment(string id)
+        {
+            return await _commentsService.CommentExists(id);
+        }
+        
+
         [HttpGet("id/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Comment))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]        
         public async Task<ActionResult<Comment>> Get(string id)
         {
             var comment = await _commentsService.GetComment(id);
-            return Ok(comment);
+
+            if (comment != null) 
+                return Ok(comment);
+            else
+                return NotFound("Commento non presente");
         }
-       
+
+        [HttpGet("comments")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Comment>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<Comment>> Get()
+        {
+            var comment = await _commentsService.GetComments();
+
+            if (comment != null)
+                return Ok(comment);
+            else
+                return NotFound("Commento non presente");
+        }
+
         [HttpPost]
-        public async Task<IActionResult> Post(Comment comment)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<Comment>> Post(Comment comment)
         {
             await _commentsService.CreateComment(comment);
            return CreatedAtAction(nameof(Get), new { id = comment.Id }, comment);
