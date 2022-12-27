@@ -5,8 +5,7 @@ using ProvaRest.Services;
 
 namespace ProvaRest.Controllers
 {
-    [EnableCors("My Policy")]
-    [Route("api/comment")]
+    [EnableCors("My Policy")]    
     [ApiController]    
     public class CommentController : ControllerBase
     {
@@ -20,7 +19,7 @@ namespace ProvaRest.Controllers
             return await _commentsService.CommentExists(id);
         }
         
-
+        [Route("api/comment")]
         [HttpGet("id/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Comment))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]        
@@ -34,6 +33,7 @@ namespace ProvaRest.Controllers
                 return NotFound("Commento non presente");
         }
 
+        [Route("api/comment")]
         [HttpGet("comments")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Comment>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -47,13 +47,15 @@ namespace ProvaRest.Controllers
                 return NotFound("Commento non presente");
         }
 
+        [Route("")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<string> GetAll() {
             return Ok("Benvenuto nel web service della mia pagina personale");
         }        
-
+        
+        [Route("api/comment")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Comment>> Post(Comment comment)
