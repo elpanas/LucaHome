@@ -18,12 +18,12 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+/* Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+} */
 
 app.UseHttpsRedirection();
 
@@ -31,6 +31,12 @@ app.UseCors(options =>
     options.WithOrigins("https://lucapanariello.altervista.org")
            .WithMethods("POST", "PUT", "DELETE", "GET")
            .AllowAnyHeader());
+
+
+/*
+app.UseCors(options => 
+    options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+*/
 
 app.UseAuthorization();
 app.MapControllers();
