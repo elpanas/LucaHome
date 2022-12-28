@@ -25,6 +25,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 } */
 
+// app.UseRouting();
+
 app.UseHttpsRedirection();
 
 app.UseCors(options =>
@@ -32,11 +34,12 @@ app.UseCors(options =>
            .WithMethods("POST", "PUT", "DELETE", "GET")
            .AllowAnyHeader());
 
-
 /*
 app.UseCors(options => 
     options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 */
+
+// app.MapGet("/", () => "Benvenuto nel web service della mia pagina personale main");
 
 app.UseAuthorization();
 app.MapControllers();
