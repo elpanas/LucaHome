@@ -29,6 +29,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.MapGet("/", () => "Benvenuto nel web service della mia pagina personale main");
+
 app.UseCors(options =>
     options.WithOrigins("https://lucapanariello.altervista.org")
            .WithMethods("POST", "PUT", "DELETE", "GET")
@@ -38,9 +40,6 @@ app.UseCors(options =>
 app.UseCors(options => 
     options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 */
-
-// app.MapGet("/", () => "Benvenuto nel web service della mia pagina personale main");
-
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

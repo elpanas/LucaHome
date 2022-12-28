@@ -46,13 +46,6 @@ namespace ProvaRest.Controllers
                 return NotFound("Commento non presente");
         }
         
-        [HttpGet("/")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<string> GetAll() {
-            return Ok("Benvenuto nel web service della mia pagina personale");
-        } 
-        
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Comment>> Post(Comment comment)
