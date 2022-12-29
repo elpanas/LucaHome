@@ -9,7 +9,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyCorPolicy,
                       policy  =>
                       {
-                          policy.WithOrigins("https://lucapanariello.altervista.org")
+                          policy.WithOrigins("https://lucapanariello.altervista.org", "http://localhost:4200")
                                 .AllowAnyMethod()
                                 .AllowAnyHeader();
                       });    
