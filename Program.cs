@@ -19,7 +19,7 @@ builder.Services.AddCors(options =>
 builder.Services.Configure<CommentDatabaseSettings>(
     builder.Configuration.GetSection("CommentDatabase"));
 
-builder.Services.AddTransient<CommentService>();
+builder.Services.AddSingleton<CommentService>();
 
 builder.Services.AddControllers();
 
