@@ -3,7 +3,18 @@ using ProvaRest.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddCors();
+var  MyCorPolicy = "_myCorPolicy";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyCorPolicy,
+                      policy  =>
+                      {
+                          policy.WithOrigins("https://lucapanariello.altervista.org")
+                                .WithMethods("POST", "PUT", "DELETE", "GET")
+                                .AllowAnyHeader();
+                      });    
+});
 
 // Add services to the container.
 builder.Services.Configure<CommentDatabaseSettings>(
@@ -15,13 +26,13 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-//app.UseHttpsRedirection();
-
-app.UseCors(options =>
-    options.WithOrigins("https://lucapanariello.altervista.org")
-           .WithMethods("POST", "PUT", "DELETE", "GET")
-           .AllowAnyHeader());
+app.UseHttpsRedirection();
+app.UseRouting();
+app.UseCors();
 
 app.UseAuthorization();
+
+app.MapGet("/", () => "Benvenuto nel web service della mia pagina personale!");
+
 app.MapControllers();
 app.Run();

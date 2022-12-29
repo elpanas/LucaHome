@@ -5,7 +5,7 @@ using ProvaRest.Services;
 
 namespace ProvaRest.Controllers
 {
-    [EnableCors("My Policy")]    
+    [EnableCors("MyCorPolicy")]    
     [ApiController]    
     [Route("api/comment")]
     public class CommentController : ControllerBase
