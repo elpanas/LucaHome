@@ -19,16 +19,14 @@ builder.Services.AddCors(options =>
 builder.Services.Configure<CommentDatabaseSettings>(
     builder.Configuration.GetSection("CommentDatabase"));
 
-builder.Services.AddSingleton<CommentService>();
+builder.Services.AddScoped<CommentService>();
 
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
 app.UseHttpsRedirection();
-//app.UseRouting();
 app.UseCors();
-
 app.UseAuthorization();
 
 app.MapGet("/", () => "Benvenuto nel web service della mia pagina personale!");
