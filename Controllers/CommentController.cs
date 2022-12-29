@@ -18,7 +18,13 @@ namespace ProvaRest.Controllers
         private async Task<bool> CheckComment(string id)
         {
             return await _commentsService.CommentExists(id);
-        }        
+        }       
+
+        [HttpOptions]
+        public IActionResult PreflightRoute()
+        {
+            return NoContent();
+        } 
         
         [HttpGet("id/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Comment))]

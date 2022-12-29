@@ -8,9 +8,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyCorPolicy,
                       policy =>
-                      {
-                          policy.AllowAnyOrigin()
-                          //policy.WithOrigins("https://lucapanariello.altervista.org")                 
+                      {                          
+                          policy.WithOrigins("https://lucapanariello.altervista.org")                 
                                 .AllowAnyMethod()
                                 .AllowAnyHeader();
                       });    
