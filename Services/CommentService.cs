@@ -2,11 +2,10 @@
 using ProvaRest.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver.Linq;
-using LucaHome.Services;
 
 namespace ProvaRest.Services
 {
-    public class CommentService : ICommentService
+    public class CommentService
     {
         private readonly IMongoCollection<Comment> _commentsCollection;        
 
@@ -39,8 +38,7 @@ namespace ProvaRest.Services
             return await query.ToListAsync();
         }
 
-        public async Task CreateComment(Comment comment) =>        
-          await _commentsCollection.InsertOneAsync(comment);
+        public async Task CreateComment(Comment comment) => await _commentsCollection.InsertOneAsync(comment);
 
         public async Task<bool> CommentExists(string id)
         {
