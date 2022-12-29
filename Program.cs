@@ -2,7 +2,6 @@ using ProvaRest.Models;
 using ProvaRest.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
 var  MyCorPolicy = "_myCorPolicy";
 
 builder.Services.AddCors(options =>
@@ -27,7 +26,7 @@ builder.Services.AddControllers();
 var app = builder.Build();
 
 app.UseHttpsRedirection();
-app.UseRouting();
+//app.UseRouting();
 app.UseCors();
 
 app.UseAuthorization();
