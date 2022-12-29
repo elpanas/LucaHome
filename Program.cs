@@ -10,7 +10,7 @@ builder.Services.AddCors(options =>
                       policy  =>
                       {
                           policy.WithOrigins("https://lucapanariello.altervista.org")
-                                .WithMethods("POST", "PUT", "DELETE", "GET")
+                                .AllowAnyMethod()
                                 .AllowAnyHeader();
                       });    
 });
@@ -25,7 +25,7 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthorization();
 
