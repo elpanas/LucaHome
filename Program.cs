@@ -26,7 +26,7 @@ builder.Services.AddControllers();
 var app = builder.Build();
 
 //app.UseHttpsRedirection();
-app.UseCors();
+app.UseCors("MyCorPolicy");
 app.UseAuthorization();
 
 app.MapGet("/", () => "Benvenuto nel web service della mia pagina personale!");

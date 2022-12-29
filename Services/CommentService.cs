@@ -10,8 +10,7 @@ namespace ProvaRest.Services
     {
         private readonly IMongoCollection<Comment> _commentsCollection;        
 
-        public CommentService(
-        IOptions<CommentDatabaseSettings> CommentDatabaseSettings)
+        public CommentService(IOptions<CommentDatabaseSettings> CommentDatabaseSettings)
         {
             var mongoClient = new MongoClient(
                 CommentDatabaseSettings.Value.ConnectionString);

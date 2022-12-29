@@ -5,8 +5,7 @@ namespace ProvaRest.Models
 {
     public class Comment
     {  
-        //[BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
+        [BsonId, BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
 
         [BsonElement("name")]

@@ -4,8 +4,7 @@ using ProvaRest.Models;
 using ProvaRest.Services;
 
 namespace ProvaRest.Controllers
-{
-    [EnableCors("MyCorPolicy")]    
+{     
     [ApiController]    
     [Route("api/comment")]
     public class CommentController : ControllerBase
@@ -26,9 +25,7 @@ namespace ProvaRest.Controllers
             return Ok();
         } 
         
-        [HttpGet("id/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Comment))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]        
+        [HttpGet("id/{id}")]        
         public async Task<ActionResult<Comment>> Get(string id)
         {
             var comment = await _commentsService.GetComment(id);
@@ -39,9 +36,7 @@ namespace ProvaRest.Controllers
                 return NotFound("Commento non presente");
         }
         
-        [HttpGet("comments")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Comment>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpGet("comments")]        
         public async Task<ActionResult<Comment>> Get()
         {
             var comment = await _commentsService.GetComments();
@@ -52,9 +47,7 @@ namespace ProvaRest.Controllers
                 return NotFound("Commento non presente");
         }
         
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPost]        
         public async Task<ActionResult<Comment>> Post(Comment comment)
         {
             await _commentsService.CreateComment(comment);
