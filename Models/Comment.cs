@@ -14,6 +14,8 @@ namespace ProvaRest.Models
         public string Email { get; set; } = null!;
         [BsonElement("content")]
         public string Content { get; set; } = null!;
+        [BsonElement("datetime")]
+        public DateTime Datetime { get; set; } = DateTime.Now;
      
     }
 }
