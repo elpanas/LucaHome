@@ -1,24 +1,24 @@
 ﻿using MongoDB.Driver;
-using ProvaRest.Models;
+using LucaHome.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver.Linq;
 
-namespace ProvaRest.Services
+namespace LucaHome.Services
 {
     public class CommentService
     {
         private readonly IMongoCollection<Comment> _commentsCollection;        
 
-        public CommentService(IOptions<CommentDatabaseSettings> CommentDatabaseSettings)
+        public CommentService(IOptions<DatabaseSettings> DbSettings)
         {
             var mongoClient = new MongoClient(
-                CommentDatabaseSettings.Value.ConnectionString);
+                DbSettings.Value.ConnectionString);
 
             var mongoDatabase = mongoClient.GetDatabase(
-                CommentDatabaseSettings.Value.DatabaseName);
+                DbSettings.Value.DatabaseName);
 
             _commentsCollection = mongoDatabase.GetCollection<Comment>(
-                CommentDatabaseSettings.Value.CommentCollectionName);
+                DbSettings.Value.CommentCollectionName);
         }                  
 
         public async Task<Comment> GetComment(string id)
@@ -31,23 +31,13 @@ namespace ProvaRest.Services
         }
 
         public async Task<List<Comment>> GetComments()
-        {
+        {            
             var query = from c in _commentsCollection.AsQueryable()                        
                         select c;
 
             return await query.ToListAsync();
         }
 
-        public async Task CreateComment(Comment comment) => await _commentsCollection.InsertOneAsync(comment);
-
-        public async Task<bool> CommentExists(string id)
-        {
-            var query = from c in _commentsCollection.AsQueryable()
-                        where c.Id == id
-                        select c;
-            var result = await query.FirstAsync();
-
-            return (result.Id != null);
-        }        
+        public async Task CreateComment(Comment comment) => await _commentsCollection.InsertOneAsync(comment);           
     }
 }

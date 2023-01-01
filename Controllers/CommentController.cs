@@ -1,22 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ProvaRest.Models;
-using ProvaRest.Services;
+using LucaHome.Models;
+using LucaHome.Services;
 
-namespace ProvaRest.Controllers
+namespace LucaHome.Controllers
 {           
     [Route("api/comment")]
     [ApiController]
     public class CommentController : ControllerBase
     {
         private readonly CommentService _commentsService;
+        private readonly AuthService _authService;
 
-        public CommentController(CommentService CommentsService) =>
-            _commentsService = CommentsService;
-        
-        private async Task<bool> CheckComment(string id)
+        public CommentController(CommentService commentsService, AuthService authService)
         {
-            return await _commentsService.CommentExists(id);
-        }       
+            _commentsService = commentsService;
+            _authService = authService;
+        }   
 
         [HttpGet("id/{id}", Name = "GetComment")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -34,14 +33,21 @@ namespace ProvaRest.Controllers
         [HttpGet("comments")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<List<Comment>>> Get()
-        {
-            var comments = await _commentsService.GetComments();
+        {     
+            var check = await _authService.CheckUser(Request);
 
-            if (comments != null)
-                return Ok(comments);
-            else
-                return NotFound("Commento non presente");
+            if (check)
+            {
+                var comments = await _commentsService.GetComments();
+
+                if (comments != null)
+                    return Ok(comments);
+                else
+                    return NotFound("Commento non presenti");
+            } else            
+                return Unauthorized("Unauthorized");                        
         }
         
         [HttpPost]

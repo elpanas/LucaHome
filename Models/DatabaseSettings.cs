@@ -1,9 +1,11 @@
-﻿namespace ProvaRest.Models
+﻿namespace LucaHome.Models
 {
-    public class CommentDatabaseSettings
+    public class DatabaseSettings
     {
         public string ConnectionString { get; set; } = null!;
         public string DatabaseName { get; set; } = null!;
         public string CommentCollectionName { get; set; } = null!;
+        public string UserCollectionName { get; set; } = null!;
+   
     }
 }
