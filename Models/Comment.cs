@@ -15,7 +15,6 @@ namespace LucaHome.Models
         [BsonElement("content")]
         public string Content { get; set; } = null!;
         [BsonElement("datetime")]
-        public DateTime Datetime { get; set; } = DateTime.Now;
-     
+        public DateTime Datetime { get; set; } = DateTime.Now;     
     }
 }

@@ -45,7 +45,7 @@ namespace LucaHome.Controllers
                 if (comments != null)
                     return Ok(comments);
                 else
-                    return NotFound("Commento non presenti");
+                    return NotFound("Commenti non presenti");
             } else            
                 return Unauthorized("Unauthorized");                        
         }
