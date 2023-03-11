@@ -9,6 +9,7 @@ builder.Services.AddCors(options =>
             build =>
             {
                 build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org");                
+                //build.AllowAnyOrigin();
                 build.AllowAnyMethod();
                 build.AllowAnyHeader();                          
             });    
