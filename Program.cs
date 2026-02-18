@@ -16,7 +16,21 @@ builder.Services.AddCors(options =>
 });
 
 // Add services to the container.
-builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("CommentDatabase"));
+builder.Services.Configure<DatabaseSettings>(options =>
+{
+    options.ConnectionString = Environment.GetEnvironmentVariable("DB_CONNECTION")
+                               ?? builder.Configuration["CommentDatabase:ConnectionString"];
+    options.DatabaseName = Environment.GetEnvironmentVariable("DB_NAME")
+                           ?? builder.Configuration["CommentDatabase:DatabaseName"];
+    options.CommentCollectionName = Environment.GetEnvironmentVariable("DB_COMMENT_COLLECTION")
+                                    ?? builder.Configuration["CommentDatabase:CommentCollectionName"];
+    options.UserCollectionName = Environment.GetEnvironmentVariable("DB_USER_COLLECTION")
+                                 ?? builder.Configuration["CommentDatabase:UserCollectionName"];
+    options.ProjectCollectionName = Environment.GetEnvironmentVariable("DB_PROJECT_COLLECTION")
+                                    ?? builder.Configuration["CommentDatabase:ProjectCollectionName"];
+    options.SkillCollectionName = Environment.GetEnvironmentVariable("DB_SKILL_COLLECTION")
+                                  ?? builder.Configuration["CommentDatabase:SkillCollectionName"];
+});
 
 builder.Services.AddSingleton<AuthService>();
 builder.Services.AddSingleton<CommentService>();
