@@ -1,22 +1,29 @@
-# Step 1: runtime
+# Vedere https://aka.ms/customizecontainer per informazioni su come personalizzare il contenitore di debug e su come Visual Studio usa questo Dockerfile per compilare le immagini per un debug più rapido.
+
+# Questa fase viene usata durante l'esecuzione da Visual Studio in modalità rapida (impostazione predefinita per la configurazione di debug)
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
-EXPOSE 8080
+EXPOSE 80
+EXPOSE 443
 
-# Step 2: build
+
+# Questa fase viene usata per compilare il progetto di servizio
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["LucaHome.csproj", "./"] 
+COPY ["LucaHome.csproj", "."]
 RUN dotnet restore "./LucaHome.csproj"
 COPY . .
-RUN dotnet build "LucaHome.csproj" -c Release -o /app/build
+WORKDIR "/src/."
+RUN dotnet build "./LucaHome.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# Step 3: publish
+# Questa fase viene usata per pubblicare il progetto di servizio da copiare nella fase finale
 FROM build AS publish
-RUN dotnet publish "LucaHome.csproj" -c Release -o /app/publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./LucaHome.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# Step 4: runtime image
+# Questa fase viene usata nell'ambiente di produzione o durante l'esecuzione da Visual Studio in modalità normale (impostazione predefinita quando non si usa la configurazione di debug)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "LucaHome.dll"] 
+ENTRYPOINT ["dotnet", "LucaHome.dll"]
