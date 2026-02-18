@@ -6,7 +6,7 @@ EXPOSE 8080
 # Step 2: build
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["LucaHome.csproj", "./"]  # <- sostituisci con il tuo .csproj
+COPY ["LucaHome.csproj", "./"] 
 RUN dotnet restore "./LucaHome.csproj"
 COPY . .
 RUN dotnet build "LucaHome.csproj" -c Release -o /app/build
@@ -19,4 +19,4 @@ RUN dotnet publish "LucaHome.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "LucaHome.dll"]  # <- sostituisci con il tuo .dll
+ENTRYPOINT ["dotnet", "LucaHome.dll"] 
