@@ -30,7 +30,7 @@ namespace LucaHome.Controllers
                 return NotFound("Skill non presente");
         }
         
-        [HttpGet("skills")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]   
         public async Task<ActionResult<List<Skill>>> Get()

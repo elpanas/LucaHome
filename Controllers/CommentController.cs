@@ -30,7 +30,7 @@ namespace LucaHome.Controllers
                 return NotFound("Commento non presente");
         }
         
-        [HttpGet("comments")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

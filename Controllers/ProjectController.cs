@@ -30,7 +30,7 @@ namespace LucaHome.Controllers
                 return NotFound("Progetto non presente");
         }
         
-        [HttpGet("projects")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
