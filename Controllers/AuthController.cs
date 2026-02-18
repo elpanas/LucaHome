@@ -11,7 +11,7 @@ namespace LucaHome.Controllers
 
         public AuthController(AuthService authService) => _authService = authService;
 
-        [HttpGet]
+        [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]        
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login()
