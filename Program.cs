@@ -39,8 +39,10 @@ builder.Services.AddSingleton<SkillService>();
 builder.Services.AddControllers();
 
 var app = builder.Build();
-
-app.UseHttpsRedirection();
+if (!app.Environment.IsProduction())
+    {
+        app.UseHttpsRedirection();
+    }
 app.UseCors();
 app.UseAuthorization();
 
