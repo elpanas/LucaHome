@@ -1,7 +1,32 @@
+using DotNetEnv;
 using LucaHome.Models;
 using LucaHome.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Env.Load(); // legge .env nella root
+
+var key = Environment.GetEnvironmentVariable("JWT_SECRET");
+var expireHours = Environment.GetEnvironmentVariable("JWT_EXPIRE_HOURS");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER"),
+            ValidAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key!))
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddCors(options =>
 {
@@ -9,7 +34,7 @@ builder.Services.AddCors(options =>
             build =>
             {
                 build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org");                
-                //build.AllowAnyOrigin();
+                // build.AllowAnyOrigin();
                 build.AllowAnyMethod();
                 build.AllowAnyHeader();                          
             });    
@@ -32,10 +57,11 @@ builder.Services.Configure<DatabaseSettings>(options =>
                                   ?? builder.Configuration["CommentDatabase:SkillCollectionName"];
 });
 
-builder.Services.AddSingleton<AuthService>();
+//builder.Services.AddSingleton<AuthService>();
 builder.Services.AddSingleton<CommentService>();
 builder.Services.AddSingleton<ProjectService>();
 builder.Services.AddSingleton<SkillService>();
+builder.Services.AddSingleton<UserService>();
 builder.Services.AddControllers();
 
 var app = builder.Build();
