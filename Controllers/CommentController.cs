@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using LucaHome.Models;
 using LucaHome.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LucaHome.Controllers
 {           
@@ -9,12 +10,10 @@ namespace LucaHome.Controllers
     public class CommentController : ControllerBase
     {
         private readonly CommentService _commentsService;
-        private readonly AuthService _authService;
 
-        public CommentController(CommentService commentsService, AuthService authService)
+        public CommentController(CommentService commentsService)
         {
             _commentsService = commentsService;
-            _authService = authService;
         }   
 
         [HttpGet("id/{id}", Name = "GetComment")]
@@ -34,25 +33,20 @@ namespace LucaHome.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [Authorize]
         public async Task<ActionResult<List<Comment>>> Get()
         {     
-            var check = await _authService.CheckUser(Request);
+            var comments = await _commentsService.GetComments();
 
-            if (check)
-            {
-                var comments = await _commentsService.GetComments();
-
-                if (comments != null)
-                    return Ok(comments);
-                else
-                    return NotFound("Commenti non presenti");
-            } else            
-                return Unauthorized("Unauthorized");                        
+            if (comments != null)
+                return Ok(comments);
+            else
+                return NotFound("Commenti non presenti");   
         }
         
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]     
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]  
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Comment>> Post([FromBody]Comment comment)
         {
             if (comment == null)

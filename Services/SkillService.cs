@@ -5,7 +5,7 @@ using MongoDB.Driver.Linq;
 
 namespace LucaHome.Services
 {
-    public class SkillService
+    public class SkillService : ISkillService
     {
         private readonly IMongoCollection<Skill> _skillsCollection;        
 

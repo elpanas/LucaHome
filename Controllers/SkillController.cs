@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using LucaHome.Models;
 using LucaHome.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LucaHome.Controllers
 {           
@@ -9,12 +10,10 @@ namespace LucaHome.Controllers
     public class SkillController : ControllerBase
     {
         private readonly SkillService _skillsService;
-        private readonly AuthService _authService;
 
-        public SkillController(SkillService skillsService, AuthService authService)
+        public SkillController(SkillService skillsService)
         {
             _skillsService = skillsService;
-            _authService = authService;
         }   
 
         [HttpGet("id/{id}", Name = "GetSkill")]
@@ -45,16 +44,17 @@ namespace LucaHome.Controllers
         
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]     
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]  
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [Authorize]
         public async Task<ActionResult<Skill>> Post([FromBody]Skill skill)
         {
             if (skill == null)
                 return BadRequest(skill);
-            else
-            {
-                await _skillsService.CreateSkill(skill);
-                return CreatedAtRoute("GetSkill", new { id = skill.Id }, skill);
-            }            
+        
+            await _skillsService.CreateSkill(skill);
+            return CreatedAtRoute("GetSkill", new { id = skill.Id }, skill);
+                    
         }            
     }
 }

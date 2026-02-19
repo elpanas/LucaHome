@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using LucaHome.Models;
 using LucaHome.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LucaHome.Controllers
 {           
@@ -9,12 +10,10 @@ namespace LucaHome.Controllers
     public class ProjectController : ControllerBase
     {
         private readonly ProjectService _projectsService;
-        private readonly AuthService _authService;
 
-        public ProjectController(ProjectService projectsService, AuthService authService)
+        public ProjectController(ProjectService projectsService)
         {
-            _projectsService = projectsService;
-            _authService = authService;
+            _projectsService = projectsService;            
         }   
 
         [HttpGet("id/{id}", Name = "GetProject")]
@@ -34,20 +33,15 @@ namespace LucaHome.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [Authorize]
         public async Task<ActionResult<List<Project>>> Get()
-        {     
-            var check = await _authService.CheckUser(Request);
+        {
+            var projects = await _projectsService.GetProjects();
 
-            if (check)
-            {
-                var projects = await _projectsService.GetProjects();
-
-                if (projects != null)
-                    return Ok(projects);
-                else
-                    return NotFound("Progetti non presenti");
-            } else            
-                return Unauthorized("Unauthorized");                        
+            if (projects != null)
+                return Ok(projects);
+            else
+                return NotFound("Progetti non presenti");                        
         }
         
         [HttpPost]

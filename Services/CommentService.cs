@@ -5,7 +5,7 @@ using MongoDB.Driver.Linq;
 
 namespace LucaHome.Services
 {
-    public class CommentService
+    public class CommentService : ICommentService
     {
         private readonly IMongoCollection<Comment> _commentsCollection;        
 
