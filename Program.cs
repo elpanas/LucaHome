@@ -59,7 +59,7 @@ builder.Services.Configure<DatabaseSettings>(options =>
 });
 
 //builder.Services.AddSingleton<AuthService>();
-builder.Services.AddSingleton<CommentService>();
+builder.Services.AddScoped<ICommentService,CommentService>();
 builder.Services.AddSingleton<ProjectService>();
 builder.Services.AddSingleton<SkillService>();
 builder.Services.AddSingleton<UserService>();
