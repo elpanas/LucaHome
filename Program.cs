@@ -1,4 +1,5 @@
 using DotNetEnv;
+using LucaHome.Mappers;
 using LucaHome.Models;
 using LucaHome.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -63,6 +64,10 @@ builder.Services.AddSingleton<ProjectService>();
 builder.Services.AddSingleton<SkillService>();
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddControllers();
+
+builder.Services.AddAutoMapper(cfg => {
+    cfg.AddProfile<CommentMapper>();
+});
 
 var app = builder.Build();
 if (!app.Environment.IsProduction())
