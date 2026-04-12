@@ -2,6 +2,8 @@
 using LucaHome.Models;
 using LucaHome.Services;
 using Microsoft.AspNetCore.Authorization;
+using LucaHome.DTO;
+using AutoMapper;
 
 namespace LucaHome.Controllers
 {           
@@ -9,22 +11,27 @@ namespace LucaHome.Controllers
     [ApiController]
     public class CommentController : ControllerBase
     {
-        private readonly CommentService _commentsService;
+        private readonly ICommentService _commentsService;
+        private readonly IMapper _mapper;
 
-        public CommentController(CommentService commentsService)
+        public CommentController(ICommentService commentsService, IMapper mapper)
         {
             _commentsService = commentsService;
+            _mapper = mapper;
         }   
 
         [HttpGet("id/{id}", Name = "GetComment")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Comment>> Get(string id)
+        public async Task<ActionResult<CommentDTOOut>> Get(string id)
         {
             var comment = await _commentsService.GetComment(id);
 
-            if (comment != null) 
-                return Ok(comment);
+            if (comment != null)
+            {
+                var commentDTOOut = _mapper.Map<CommentDTOOut>(comment);
+                return Ok(commentDTOOut);
+            }
             else
                 return NotFound("Commento non presente");
         }
@@ -34,7 +41,7 @@ namespace LucaHome.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [Authorize]
-        public async Task<ActionResult<List<Comment>>> Get()
+        public async Task<ActionResult<List<CommentDTOOut>>> Get()
         {     
             var comments = await _commentsService.GetComments();
 
@@ -47,12 +54,13 @@ namespace LucaHome.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]     
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Comment>> Post([FromBody]Comment comment)
+        public async Task<ActionResult<CommentDTOIn>> Post([FromBody]CommentDTOIn commentIn)
         {
-            if (comment == null)
-                return BadRequest(comment);
+            if (commentIn == null)
+                return BadRequest(commentIn);
             else
             {
+                var comment = _mapper.Map<Comment>(commentIn);
                 await _commentsService.CreateComment(comment);
                 return CreatedAtRoute("GetComment", new { id = comment.Id }, comment);
             }            
