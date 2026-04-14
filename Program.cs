@@ -3,8 +3,10 @@ using LucaHome.Mappers;
 using LucaHome.Models;
 using LucaHome.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,19 @@ Env.Load(); // legge .env nella root
 
 var key = Environment.GetEnvironmentVariable("JWT_SECRET");
 var expireHours = Environment.GetEnvironmentVariable("JWT_EXPIRE_HOURS");
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("strict", opt =>
+    {
+        opt.Window = TimeSpan.FromMinutes(5); // Finestra di 5 minuti
+        opt.PermitLimit = 2; // Massimo 2 messaggi per finestra
+        opt.QueueLimit = 0;
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    });
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -34,8 +49,8 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
             build =>
             {
-                build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org");                
-                // build.AllowAnyOrigin();
+                // build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org");                
+                build.AllowAnyOrigin();
                 build.AllowAnyMethod();
                 build.AllowAnyHeader();                          
             });    
@@ -70,11 +85,16 @@ builder.Services.AddAutoMapper(cfg => {
 });
 
 var app = builder.Build();
+
 if (!app.Environment.IsProduction())
     {
         app.UseHttpsRedirection();
     }
+
 app.UseCors();
+
+app.UseRateLimiter();
+
 app.UseAuthorization();
 
 app.MapGet("/", () => "Welcome in the web service of my website!");

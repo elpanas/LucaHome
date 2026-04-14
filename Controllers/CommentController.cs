@@ -4,6 +4,7 @@ using LucaHome.Services;
 using Microsoft.AspNetCore.Authorization;
 using LucaHome.DTO;
 using AutoMapper;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace LucaHome.Controllers
 {           
@@ -52,10 +53,14 @@ namespace LucaHome.Controllers
         }
         
         [HttpPost]
+        [EnableRateLimiting("strict")]
         [ProducesResponseType(StatusCodes.Status201Created)]     
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CommentDTOIn>> Post([FromBody]CommentDTOIn commentIn)
         {
+            if (!string.IsNullOrEmpty(commentIn.Middlename))            
+                return Ok(); // Risponde 200 (fai credere al bot di aver vinto) ma non salva nulla nel DB            
+
             if (commentIn == null)
                 return BadRequest(commentIn);
             else
