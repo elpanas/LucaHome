@@ -1,43 +1,18 @@
-﻿using MongoDB.Driver;
-using LucaHome.Models;
-using Microsoft.Extensions.Options;
-using MongoDB.Driver.Linq;
+﻿using LucaHome.Models;
+using LucaHome.Repositories;
 
 namespace LucaHome.Services
 {
     public class CommentService : ICommentService
     {
-        private readonly IMongoCollection<Comment> _commentsCollection;        
+       public readonly ICommentRepository _commentRepository;
 
-        public CommentService(IOptions<DatabaseSettings> DbSettings)
+        public CommentService(ICommentRepository commentRepository)
         {
-            var mongoClient = new MongoClient(
-                DbSettings.Value.ConnectionString);
-
-            var mongoDatabase = mongoClient.GetDatabase(
-                DbSettings.Value.DatabaseName);
-
-            _commentsCollection = mongoDatabase.GetCollection<Comment>(
-                DbSettings.Value.CommentCollectionName);
-        }                  
-
-        public async Task<Comment> GetComment(string id)
-        {
-            var query = from c in _commentsCollection.AsQueryable()
-                        where c.Id == id
-                        select c;
-
-            return await query.FirstAsync();
+            _commentRepository = commentRepository;
         }
-
-        public async Task<List<Comment>> GetComments()
-        {            
-            var query = from c in _commentsCollection.AsQueryable()                        
-                        select c;
-
-            return await query.ToListAsync();
-        }
-
-        public async Task CreateComment(Comment comment) => await _commentsCollection.InsertOneAsync(comment);           
+        public async Task<Comment> GetComment(string id) => await _commentRepository.GetByIdAsync(id);
+        public async Task<List<Comment>> GetComments() => await _commentRepository.GetAllAsync();
+        public async Task CreateComment(Comment comment) => await _commentRepository.CreateAsync(comment);
     }
 }

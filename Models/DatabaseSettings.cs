@@ -8,5 +8,6 @@
         public string UserCollectionName { get; set; } = null!;
         public string ProjectCollectionName { get; set; } = null!;
         public string SkillCollectionName { get; set; } = null!;
+        public string DbProvider { get; set; } = "MongoDB";
     }
 }

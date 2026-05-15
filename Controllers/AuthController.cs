@@ -13,9 +13,9 @@ namespace LucaHome.Controllers
     public class AuthController : ControllerBase
     {
         // private readonly AuthService _authService;
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
 
-        public AuthController(UserService userService) { 
+        public AuthController(IUserService userService) { 
             // _authService = authService;
             _userService = userService; 
         }

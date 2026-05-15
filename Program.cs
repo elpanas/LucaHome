@@ -1,6 +1,7 @@
 using DotNetEnv;
 using LucaHome.Mappers;
 using LucaHome.Models;
+using LucaHome.Repositories;
 using LucaHome.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
@@ -12,9 +13,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 Env.Load(); // legge .env nella root
 
+// JWT SETTINGS
 var key = Environment.GetEnvironmentVariable("JWT_SECRET");
 var expireHours = Environment.GetEnvironmentVariable("JWT_EXPIRE_HOURS");
+// -------------------------------------------
 
+// PROBLEM DETAILS
+builder.Services.AddProblemDetails();
+
+// RATE LIMITER
 builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("strict", opt =>
@@ -27,7 +34,9 @@ builder.Services.AddRateLimiter(options =>
 
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
+// -------------------------------------------
 
+// JWT AUTHENTICATION
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -41,9 +50,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key!))
         };
     });
+// -------------------------------------------
 
 builder.Services.AddAuthorization();
 
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
@@ -55,8 +66,9 @@ builder.Services.AddCors(options =>
                 build.AllowAnyHeader();                          
             });    
 });
+// -------------------------------------------
 
-// Add services to the container.
+// DATABASE SETTINGS
 builder.Services.Configure<DatabaseSettings>(options =>
 {
     options.ConnectionString = Environment.GetEnvironmentVariable("DB_CONNECTION")
@@ -72,32 +84,54 @@ builder.Services.Configure<DatabaseSettings>(options =>
     options.SkillCollectionName = Environment.GetEnvironmentVariable("DB_SKILL_COLLECTION")
                                   ?? builder.Configuration["CommentDatabase:SkillCollectionName"];
 });
+// -------------------------------------------
 
-//builder.Services.AddSingleton<AuthService>();
+// REPOSITORIES
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<ISkillRepository, SkillRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+// SERVICES
 builder.Services.AddScoped<ICommentService,CommentService>();
-builder.Services.AddSingleton<ProjectService>();
-builder.Services.AddSingleton<SkillService>();
-builder.Services.AddSingleton<UserService>();
+builder.Services.AddScoped<ISkillService, SkillService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ProjectService>();
+// -------------------------------------------
+
+// CONTROLLERS
 builder.Services.AddControllers();
 
+// AUTOMAPPER
 builder.Services.AddAutoMapper(cfg => {
     cfg.AddProfile<CommentMapper>();
+});
+// -------------------------------------------
+
+builder.Services.AddOutputCache(options =>
+{
+    // Opzionale: definisci una policy globale o specifica
+    options.AddBasePolicy(builder => builder.Expire(TimeSpan.FromMinutes(10)));
 });
 
 var app = builder.Build();
 
-if (!app.Environment.IsProduction())
+if (app.Environment.IsProduction())
+    {
+        app.UseStatusCodePages();
+        app.UseExceptionHandler(); // Middleware per gestire le eccezioni globalmente
+        app.UseHsts();
+    }
+else
     {
         app.UseHttpsRedirection();
+        app.UseDeveloperExceptionPage(); // Mostra dettagli degli errori in sviluppo
     }
 
 app.UseCors();
-
+app.UseOutputCache();
 app.UseRateLimiter();
-
 app.UseAuthorization();
-
 app.MapGet("/", () => "Welcome in the web service of my website!");
-
 app.MapControllers();
+
 app.Run();

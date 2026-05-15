@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using LucaHome.Models;
+﻿using LucaHome.Models;
 using LucaHome.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace LucaHome.Controllers
 {           
@@ -9,9 +10,9 @@ namespace LucaHome.Controllers
     [ApiController]
     public class SkillController : ControllerBase
     {
-        private readonly SkillService _skillsService;
+        private readonly ISkillService _skillsService;
 
-        public SkillController(SkillService skillsService)
+        public SkillController(ISkillService skillsService)
         {
             _skillsService = skillsService;
         }   
@@ -30,6 +31,7 @@ namespace LucaHome.Controllers
         }
         
         [HttpGet]
+        [OutputCache(Duration = 600, Tags = new[] { "tag-skills" })]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]   
         public async Task<ActionResult<List<Skill>>> Get()
@@ -47,13 +49,23 @@ namespace LucaHome.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [Authorize]
-        public async Task<ActionResult<Skill>> Post([FromBody]Skill skill)
+        public async Task<ActionResult<Skill>> Post([FromBody]Skill skill, IOutputCacheStore cacheStore)
         {
             if (skill == null)
-                return BadRequest(skill);
-        
-            await _skillsService.CreateSkill(skill);
-            return CreatedAtRoute("GetSkill", new { id = skill.Id }, skill);
+                return BadRequest();            
+
+            try
+            {
+                await _skillsService.CreateSkill(skill);
+
+                await cacheStore.EvictByTagAsync("tag-skills", default); // elimina il contenuto cache con il tag "tag-skill"
+
+                return CreatedAtRoute("GetSkill", new { id = skill.Id }, skill);
+            } catch 
+            {
+                return StatusCode(500, "Errore durante il salvataggio o l'aggiornamento della cache.");
+            }
+            
                     
         }            
     }
