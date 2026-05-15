@@ -1,4 +1,5 @@
 using DotNetEnv;
+using LucaHome.Factories;
 using LucaHome.Mappers;
 using LucaHome.Models;
 using LucaHome.Repositories;
@@ -88,8 +89,12 @@ builder.Services.Configure<DatabaseSettings>(options =>
 
 // REPOSITORIES
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
-builder.Services.AddScoped<ISkillRepository, SkillRepository>();
+builder.Services.AddScoped<SkillRepoMongo>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+// FACTORIES
+builder.Services.AddScoped<ISkillFactory, SkillFactory>();
+// builder.Services.AddScoped<SkillRepoMongo>(); // registrazione concreta per la factory
 
 // SERVICES
 builder.Services.AddScoped<ICommentService,CommentService>();
