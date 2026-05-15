@@ -61,8 +61,8 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
             build =>
             {
-                // build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org");                
-                build.AllowAnyOrigin();
+                build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org");                
+                // build.AllowAnyOrigin();
                 build.AllowAnyMethod();
                 build.AllowAnyHeader();                          
             });    
