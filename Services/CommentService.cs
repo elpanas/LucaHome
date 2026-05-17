@@ -1,5 +1,7 @@
-﻿using LucaHome.Models;
+﻿using LucaHome.Factories;
+using LucaHome.Models;
 using LucaHome.Repositories;
+using Microsoft.Extensions.Options;
 
 namespace LucaHome.Services
 {
@@ -7,10 +9,11 @@ namespace LucaHome.Services
     {
        public readonly ICommentRepository _commentRepository;
 
-        public CommentService(ICommentRepository commentRepository)
+       public CommentService(ICommentFactory commentFactory, IOptions<MongoSettings> dbSettings)
         {
-            _commentRepository = commentRepository;
+            _commentRepository = commentFactory.GetRepository(dbSettings.Value.DbProvider);
         }
+
         public async Task<Comment> GetComment(string id) => await _commentRepository.GetByIdAsync(id);
         public async Task<List<Comment>> GetComments() => await _commentRepository.GetAllAsync();
         public async Task CreateComment(Comment comment) => await _commentRepository.CreateAsync(comment);

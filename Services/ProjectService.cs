@@ -9,10 +9,10 @@ namespace LucaHome.Services
     {
         private readonly IMongoCollection<Project> _projectsCollection;        
 
-        public ProjectService(IOptions<DatabaseSettings> DbSettings)
+        public ProjectService(IOptions<MongoSettings> DbSettings)
         {
             var mongoClient = new MongoClient(
-                DbSettings.Value.ConnectionString);
+                DbSettings.Value.ConnectionStringMongo);
 
             var mongoDatabase = mongoClient.GetDatabase(
                 DbSettings.Value.DatabaseName);

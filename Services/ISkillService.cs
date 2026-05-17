@@ -1,5 +1,4 @@
-﻿using LucaHome.DTO;
-using LucaHome.Models;
+﻿using LucaHome.Models;
 
 namespace LucaHome.Services
 {
