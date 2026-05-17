@@ -1,14 +1,17 @@
 using DotNetEnv;
+using LucaHome.DBs;
 using LucaHome.Factories;
 using LucaHome.Mappers;
 using LucaHome.Models;
 using LucaHome.Repositories;
+using LucaHome.Repositories.Mongo;
+using LucaHome.Repositories.SQL;
 using LucaHome.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,8 +32,8 @@ builder.Services.AddRateLimiter(options =>
     {
         opt.Window = TimeSpan.FromMinutes(5); // Finestra di 5 minuti
         opt.PermitLimit = 2; // Massimo 2 messaggi per finestra
-        opt.QueueLimit = 0;
-        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0; // Non accodare richieste in eccesso
+        //opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
     });
 
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -43,11 +46,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false,
-            ValidateAudience = false,
+            ValidateIssuer = true,
+            ValidateAudience = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER"),
-            ValidAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
+            ValidIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER"), // emesso dalla mia app
+            ValidAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE"), // destinatari previsti (client)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key!))
         };
     });
@@ -61,40 +64,62 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
             build =>
             {
-                build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org");                
-                // build.AllowAnyOrigin();
+                // build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org");                
+                build.AllowAnyOrigin();
                 build.AllowAnyMethod();
                 build.AllowAnyHeader();                          
             });    
 });
 // -------------------------------------------
 
-// DATABASE SETTINGS
-builder.Services.Configure<DatabaseSettings>(options =>
+// DATABASE SETTINGS MONGO
+builder.Services.Configure<MongoSettings>(options =>
 {
-    options.ConnectionString = Environment.GetEnvironmentVariable("DB_CONNECTION")
-                               ?? builder.Configuration["CommentDatabase:ConnectionString"];
+    options.ConnectionStringMongo = Environment.GetEnvironmentVariable("DB_CONNECTION")
+                               ?? builder.Configuration["DatabaseSettings:Mongo:ConnectionStringMongo"];
     options.DatabaseName = Environment.GetEnvironmentVariable("DB_NAME")
-                           ?? builder.Configuration["CommentDatabase:DatabaseName"];
+                           ?? builder.Configuration["DatabaseSettings:Mongo:DatabaseName"];
     options.CommentCollectionName = Environment.GetEnvironmentVariable("DB_COMMENT_COLLECTION")
-                                    ?? builder.Configuration["CommentDatabase:CommentCollectionName"];
+                                    ?? builder.Configuration["DatabaseSettings:Mongo:CommentCollectionName"];
     options.UserCollectionName = Environment.GetEnvironmentVariable("DB_USER_COLLECTION")
-                                 ?? builder.Configuration["CommentDatabase:UserCollectionName"];
+                                 ?? builder.Configuration["DatabaseSettings:Mongo:UserCollectionName"];
     options.ProjectCollectionName = Environment.GetEnvironmentVariable("DB_PROJECT_COLLECTION")
-                                    ?? builder.Configuration["CommentDatabase:ProjectCollectionName"];
+                                    ?? builder.Configuration["DatabaseSettings:Mongo:ProjectCollectionName"];
     options.SkillCollectionName = Environment.GetEnvironmentVariable("DB_SKILL_COLLECTION")
-                                  ?? builder.Configuration["CommentDatabase:SkillCollectionName"];
+                                  ?? builder.Configuration["DatabaseSettings:Mongo:SkillCollectionName"];
+    options.DbProvider = Environment.GetEnvironmentVariable("DB_PROVIDER")
+                        ?? builder.Configuration["DatabaseSettings:DbProvider"];
 });
 // -------------------------------------------
 
+// DATABASE SETTINGS SQL
+var ConnectionStringSql = Environment.GetEnvironmentVariable("DB_CONNECTION_SQL")
+                            ?? builder.Configuration["DatabaseSettings:SQL:ConnectionStringSql"];
+
+builder.Services.AddDbContext<SQLDBContext>(options =>
+    options.UseSqlServer(ConnectionStringSql));
+// -------------------------------------------
+
 // REPOSITORIES
-builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepoMongo>();
+builder.Services.AddScoped<ISkillRepository, SkillRepoMongo>();
+builder.Services.AddScoped<IUserRepository, UserRepoMongo>();
+builder.Services.AddScoped<ICommentRepository, CommentRepoSQL>();
+builder.Services.AddScoped<ISkillRepository, SkillRepoSQL>();
+builder.Services.AddScoped<IUserRepository, UserRepoSQL>();
+
+// Registrazioni concrete per le factory
+builder.Services.AddScoped<CommentRepoMongo>();
 builder.Services.AddScoped<SkillRepoMongo>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<UserRepoMongo>();
+builder.Services.AddScoped<CommentRepoSQL>();
+builder.Services.AddScoped<SkillRepoSQL>();
+builder.Services.AddScoped<UserRepoSQL>();
 
 // FACTORIES
+builder.Services.AddScoped<ICommentFactory, CommentFactory>();
 builder.Services.AddScoped<ISkillFactory, SkillFactory>();
-// builder.Services.AddScoped<SkillRepoMongo>(); // registrazione concreta per la factory
+builder.Services.AddScoped<IUserFactory, UserFactory>();
 
 // SERVICES
 builder.Services.AddScoped<ICommentService,CommentService>();
@@ -114,7 +139,7 @@ builder.Services.AddAutoMapper(cfg => {
 
 builder.Services.AddOutputCache(options =>
 {
-    // Opzionale: definisci una policy globale o specifica
+    // policy globale o specifica
     options.AddBasePolicy(builder => builder.Expire(TimeSpan.FromMinutes(10)));
 });
 
