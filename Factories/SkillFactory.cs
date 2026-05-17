@@ -1,4 +1,6 @@
 ﻿using LucaHome.Repositories;
+using LucaHome.Repositories.Mongo;
+using LucaHome.Repositories.SQL;
 
 namespace LucaHome.Factories
 {
@@ -16,7 +18,7 @@ namespace LucaHome.Factories
             return targetDb.ToLower() switch
             {
                 "mongodb" => _serviceProvider.GetRequiredService<SkillRepoMongo>(),
-                // "sql" => _serviceProvider.GetRequiredService<SqlSkillRepository>(),
+                "sql" => _serviceProvider.GetRequiredService<SkillRepoSQL>(),
                 _ => throw new Exception("Database non supportato")
             };
         }
