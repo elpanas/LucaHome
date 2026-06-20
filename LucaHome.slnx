@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../LucaHome.Tests/LucaHome.Tests.csproj" Id="8a569208-718f-4b38-b112-9b0caf618f0c" />
   <Project Path="LucaHome.csproj" />
 </Solution>
