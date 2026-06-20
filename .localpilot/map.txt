@@ -1,0 +1,152 @@
+## WORKSPACE EXECUTIVE SUMMARY (YAML)
+# Generated: 2026-05-21T10:51:58.5445477+02:00
+# Root: G:\Documenti\Progetti\NET\LucaHome
+Architecture:
+  Type: Backend (C#/.NET)
+  Scale: 52 relevant source files
+  Components: 0
+  Controllers: 4
+  Models: 5
+  Services: 7
+---
+- File: LucaHome.csproj
+  Preview: "<Project Sdk='Microsoft.NET.Sdk.Web'>  <PropertyGroup>   <TargetFramework>net10.0</TargetFramework>   <Nullable>enable</Nullable>   <ImplicitUsings>en..."
+- File: appsettings.Development.json
+  Preview: "{  'Logging': {   'LogLevel': {    'Default': 'Information',    'Microsoft.AspNetCore': 'Warning'   }  } } "
+- File: appsettings.json
+  Preview: "{  'DatabaseSettings': {   'Mongo': {    'ConnectionStringMongo': 'mongodb+srv://homeluke:tsWnQKjRNTh7PYk@cluster0.5mayc.mongodb.net/homeluke?retryWri..."
+- File: LucaHome.slnx
+  Preview: "<Solution>  <Project Path='../LucaHome.Tests/LucaHome.Tests.csproj' Id='8a569208-718f-4b38-b112-9b0caf618f0c' />  <Project Path='LucaHome.csproj' /> <..."
+- File: Program.cs
+  Preview: "using DotNetEnv; using LucaHome.DBs; using LucaHome.Factories; using LucaHome.Mappers; using LucaHome.Models; using LucaHome.Repositories; using LucaH..."
+- File: .config\dotnet-tools.json
+  Preview: "{  'version': 1,  'isRoot': true,  'tools': {   'dotnet-ef': {    'version': '7.0.1',    'commands': [     'dotnet-ef'    ]   }  } }"
+- File: .vscode\launch.json
+  Preview: "{   'version': '0.2.0',   'configurations': [     {       // Use IntelliSense to find out which attributes exist for C# debugging       // Use hover f..."
+- File: .vscode\tasks.json
+  Preview: "{   'version': '2.0.0',   'tasks': [     {       'label': 'build',       'command': 'dotnet',       'type': 'process',       'args': [         'build'..."
+- File: Controllers\AuthController.cs
+  Symbols: [AuthController]
+  Preview: "using LucaHome.DTO; using LucaHome.Services; using Microsoft.AspNetCore.Mvc; namespace LucaHome.Controllers {   [Route('api/login')]   [ApiController]..."
+- File: Controllers\CommentController.cs
+  Preview: "using Microsoft.AspNetCore.Mvc; using LucaHome.Models; using LucaHome.Services; using Microsoft.AspNetCore.Authorization; using LucaHome.DTO; using Au..."
+- File: Controllers\ProjectController.cs
+  Symbols: [ProjectCon]
+  Preview: "using Microsoft.AspNetCore.Mvc; using LucaHome.Models; using LucaHome.Services; using Microsoft.AspNetCore.Authorization; namespace LucaHome.Controlle..."
+- File: Controllers\SkillController.cs
+  Preview: "using AutoMapper; using LucaHome.DTO; using LucaHome.Models; using LucaHome.Services; using Microsoft.AspNetCore.Authorization; using Microsoft.AspNet..."
+- File: DBs\SQLDBContext.cs
+  Symbols: [base, SQLDBContext]
+  Preview: "using LucaHome.Models; using Microsoft.EntityFrameworkCore; namespace LucaHome.DBs {   public class SQLDBContext : DbContext   {     public SQLDBConte..."
+- File: DTO\CommentDTOIn.cs
+  Symbols: [CommentDTOIn]
+  Preview: "using System.ComponentModel.DataAnnotations; namespace LucaHome.DTO {   public class CommentDTOIn   {     [Required]     [StringLength(50)]     public..."
+- File: DTO\CommentDTOOut.cs
+  Symbols: [CommentDTOOut]
+  Preview: "namespace LucaHome.DTO {   public class CommentDTOOut   {     public int Id { get; set; }     public string Name { get; set; } = null!;     public str..."
+- File: DTO\SkillDTOIn.cs
+  Symbols: [SkillDTOIn]
+  Preview: "namespace LucaHome.DTO {   public class SkillDTOIn   {     public string? Name { get; set; }     public int? Category { get; set; }     public int? Se..."
+- File: DTO\SkillDTOOut.cs
+  Symbols: [SkillDTOOut]
+  Preview: " namespace LucaHome.DTO {   public class SkillDTOOut   {     public string? Id { get; set; }      public string? Name { get; set; }     public int? Ca..."
+- File: DTO\UserDTOIn.cs
+  Symbols: [UserDTOIn]
+  Preview: "using MongoDB.Bson.Serialization.Attributes; namespace LucaHome.DTO {   public class UserDTOIn   {     public string? Username { get; set; }     publi..."
+- File: Factories\CommentFactory.cs
+  Symbols: [CommentFactory]
+  Preview: "using LucaHome.Repositories; using LucaHome.Repositories.Mongo; using LucaHome.Repositories.SQL; namespace LucaHome.Factories {   public class Comment..."
+- File: Factories\ICommentFactory.cs
+  Symbols: [ICommentFactory]
+  Preview: "using LucaHome.Repositories; namespace LucaHome.Factories {   public interface ICommentFactory   {     public ICommentRepository GetRepository(string ..."
+- File: Factories\ISkillFactory.cs
+  Symbols: [ISkillFactory]
+  Preview: "using LucaHome.Repositories; namespace LucaHome.Factories {   public interface ISkillFactory   {     public ISkillRepository GetRepository(string targ..."
+- File: Factories\IUserFactory.cs
+  Symbols: [IUserFactory]
+  Preview: "using LucaHome.Repositories; namespace LucaHome.Factories {   public interface IUserFactory   {     public IUserRepository GetRepository(string target..."
+- File: Factories\SkillFactory.cs
+  Symbols: [SkillFactory]
+  Preview: "using LucaHome.Repositories; using LucaHome.Repositories.Mongo; using LucaHome.Repositories.SQL; namespace LucaHome.Factories {   public class SkillFa..."
+- File: Factories\UserFactory.cs
+  Symbols: [UserFactory]
+  Preview: "using LucaHome.Repositories; using LucaHome.Repositories.Mongo; using LucaHome.Repositories.SQL; namespace LucaHome.Factories {   public class UserFac..."
+- File: Mappers\CommentMapper.cs
+  Symbols: [CommentMapper, CommentMapper]
+  Preview: "using AutoMapper; using LucaHome.DTO; using LucaHome.Models; namespace LucaHome.Mappers {   public class CommentMapper : Profile   {     public Commen..."
+- File: Mappers\SkillMapper.cs
+  Symbols: [SkillMapper, SkillMapper]
+  Preview: "using AutoMapper; using LucaHome.DTO; using LucaHome.Models; namespace LucaHome.Mappers {   public class SkillMapper : Profile   {     public SkillMap..."
+- File: Migrations\20260517140232_InitialCreate.cs
+  Symbols: [InitialCreate]
+  Preview: "using System; using Microsoft.EntityFrameworkCore.Migrations; #nullable disable namespace LucaHome.Migrations {   /// <inheritdoc />   public partial ..."
+- File: Migrations\20260517140232_InitialCreate.Designer.cs
+  Preview: "// <auto-generated /> using System; using LucaHome.DBs; using Microsoft.EntityFrameworkCore; using Microsoft.EntityFrameworkCore.Infrastructure; using..."
+- File: Migrations\SQLDBContextModelSnapshot.cs
+  Preview: "// <auto-generated /> using System; using LucaHome.DBs; using Microsoft.EntityFrameworkCore; using Microsoft.EntityFrameworkCore.Infrastructure; using..."
+- File: Models\Comment.cs
+  Symbols: [Comment]
+  Preview: "using MongoDB.Bson; using MongoDB.Bson.Serialization.Attributes; namespace LucaHome.Models {   public class Comment   {      [BsonId, BsonRepresentati..."
+- File: Models\MongoSettings.cs
+  Symbols: [MongoSettings]
+  Preview: "namespace LucaHome.Models {   public class MongoSettings   {     public string ConnectionStringMongo { get; set; } = null!;     public string Database..."
+- File: Models\Project.cs
+  Symbols: [Project]
+  Preview: "using MongoDB.Bson.Serialization.Attributes; using MongoDB.Bson; namespace LucaHome.Models {   public class Project   {     [BsonId, BsonRepresentatio..."
+- File: Models\Skill.cs
+  Symbols: [Skill]
+  Preview: "using MongoDB.Bson.Serialization.Attributes; using MongoDB.Bson; namespace LucaHome.Models {   public class Skill   {     [BsonId, BsonRepresentation(..."
+- File: Models\User.cs
+  Symbols: [User]
+  Preview: "using MongoDB.Bson.Serialization.Attributes; using MongoDB.Bson; namespace LucaHome.Models {   public class User   {     [BsonId, BsonRepresentation(B..."
+- File: Properties\launchSettings.json
+  Preview: "{  'profiles': {   'ProvaRest': {    'commandName': 'Project',    'launchBrowser': true,    'environmentVariables': {     'ASPNETCORE_ENVIRONMENT': 'P..."
+- File: Properties\serviceDependencies.json
+  Preview: "{  'dependencies': {   'apis1': {    'type': 'apis'   }  } }"
+- File: Repositories\ICommentRepository.cs
+  Symbols: [ICommentRepository]
+  Preview: "using LucaHome.Models; namespace LucaHome.Repositories {   public interface ICommentRepository   {     public Task<Comment> GetByIdAsync(string id);  ..."
+- File: Repositories\ISkillRepository.cs
+  Symbols: [ISkillRepository]
+  Preview: "using LucaHome.Models; namespace LucaHome.Repositories {   public interface ISkillRepository   {     Task<Skill> GetByIdAsync(string id);     Task<Lis..."
+- File: Repositories\IUserRepository.cs
+  Symbols: [IUserRepository]
+  Preview: "using LucaHome.DTO; using LucaHome.Models; namespace LucaHome.Repositories {   public interface IUserRepository   {     public Task<User?> GetUserByUs..."
+- File: Services\CommentService.cs
+  Symbols: [CommentService]
+  Preview: "using LucaHome.Factories; using LucaHome.Models; using LucaHome.Repositories; using Microsoft.Extensions.Options; namespace LucaHome.Services {   publ..."
+- File: Services\ICommentService.cs
+  Symbols: [ICommentService]
+  Preview: "using LucaHome.Models; namespace LucaHome.Services {   public interface ICommentService   {     Task<Comment> GetComment(string id);     Task<List<Com..."
+- File: Services\ISkillService.cs
+  Symbols: [ISkillService]
+  Preview: "using LucaHome.Models; namespace LucaHome.Services {   public interface ISkillService   {     Task<Skill> GetSkill(string id);     Task<List<Skill>> G..."
+- File: Services\IUserService.cs
+  Symbols: [IUserService]
+  Preview: "using LucaHome.DTO; using System.IdentityModel.Tokens.Jwt; namespace LucaHome.Services {   public interface IUserService   {     Task<string?> Login(U..."
+- File: Services\ProjectService.cs
+  Symbols: [ProjectService]
+  Preview: "using MongoDB.Driver; using LucaHome.Models; using Microsoft.Extensions.Options; using MongoDB.Driver.Linq; namespace LucaHome.Services {   public cla..."
+- File: Services\SkillService.cs
+  Symbols: [SkillService]
+  Preview: "using LucaHome.DTO; using LucaHome.Factories; using LucaHome.Models; using LucaHome.Repositories; using Microsoft.Extensions.Options; namespace LucaHo..."
+- File: Services\UserService.cs
+  Preview: "using LucaHome.DTO; using LucaHome.Factories; using LucaHome.Models; using LucaHome.Repositories; using Microsoft.Extensions.Options; using Microsoft...."
+- File: Repositories\Mongo\CommentRepoMongo.cs
+  Symbols: [CommentRepoMongo]
+  Preview: "using LucaHome.Models; using Microsoft.Extensions.Options; using MongoDB.Driver; namespace LucaHome.Repositories.Mongo {   public class CommentRepoMon..."
+- File: Repositories\Mongo\SkillRepoMongo.cs
+  Symbols: [SkillRepoMongo]
+  Preview: "using LucaHome.Models; using Microsoft.Extensions.Options; using MongoDB.Driver; namespace LucaHome.Repositories.Mongo {   public class SkillRepoMongo..."
+- File: Repositories\Mongo\UserRepoMongo.cs
+  Symbols: [UserRepoMongo]
+  Preview: "using LucaHome.DTO; using LucaHome.Models; using Microsoft.Extensions.Options; using MongoDB.Driver; using MongoDB.Driver.Linq; namespace LucaHome.Rep..."
+- File: Repositories\SQL\CommentRepoSQL.cs
+  Symbols: [CommentRepoSQL]
+  Preview: "using LucaHome.DBs; using LucaHome.Models; using Microsoft.EntityFrameworkCore; namespace LucaHome.Repositories.SQL {   public class CommentRepoSQL : ..."
+- File: Repositories\SQL\SkillRepoSQL.cs
+  Symbols: [SkillRepoSQL]
+  Preview: "using LucaHome.DBs; using LucaHome.Models; using Microsoft.EntityFrameworkCore; namespace LucaHome.Repositories.SQL {   public class SkillRepoSQL : IS..."
+- File: Repositories\SQL\UserRepoSQL.cs
+  Symbols: [UserRepoSQL]
+  Preview: "using LucaHome.DBs; using LucaHome.DTO; using LucaHome.Models; namespace LucaHome.Repositories.SQL {   public class UserRepoSQL : IUserRepository   { ..."
