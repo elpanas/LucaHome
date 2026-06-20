@@ -1,5 +1,4 @@
-﻿using LucaHome.DTO;
-using LucaHome.Factories;
+﻿using LucaHome.Factories;
 using LucaHome.Models;
 using LucaHome.Repositories;
 using Microsoft.Extensions.Options;
@@ -12,7 +11,7 @@ namespace LucaHome.Services
 
         public SkillService(ISkillFactory skillFactory, IOptions<MongoSettings> dbSettings)
         {
-            _skillRepository = skillFactory.GetRepository(dbSettings.Value.DbProvider);
+            _skillRepository = skillFactory.GetRepository(dbSettings.Value.DbProvider);            
         }
 
         public async Task<Skill> GetSkill(string id) => await _skillRepository.GetByIdAsync(id);   

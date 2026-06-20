@@ -58,17 +58,16 @@ namespace LucaHome.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CommentDTOIn>> Post([FromBody]CommentDTOIn commentIn)
         {
-            if (!string.IsNullOrEmpty(commentIn.Middlename))            
-                return Ok(); // Risponde 200 (fai credere al bot di aver vinto) ma non salva nulla nel DB            
-
             if (commentIn == null)
                 return BadRequest(commentIn);
-            else
-            {
-                var comment = _mapper.Map<Comment>(commentIn);
-                await _commentsService.CreateComment(comment);
-                return CreatedAtRoute("GetComment", new { id = comment.Id }, comment);
-            }            
+
+            if (!string.IsNullOrEmpty(commentIn.Middlename))            
+                return Ok(); // Risponde 200 (fai credere al bot di aver vinto) ma non salva nulla nel DB            
+          
+            var comment = _mapper.Map<Comment>(commentIn);
+            await _commentsService.CreateComment(comment);
+            return CreatedAtRoute("GetComment", new { id = comment.Id }, comment);
+                       
         }            
     }
 }

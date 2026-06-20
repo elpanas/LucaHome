@@ -21,7 +21,7 @@ namespace LucaHome.Controllers
             _mapper = mapper;
         }   
 
-        [HttpGet("id/{id}", Name = "GetSkill")]
+        [HttpGet("{id}", Name = "GetSkill")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<SkillDTOOut>> Get(string id)
@@ -31,7 +31,7 @@ namespace LucaHome.Controllers
             if (skill != null) 
                 return Ok(_mapper.Map<SkillDTOOut>(skill));
             else
-                return NotFound("Skill non presente");
+                return NotFound();
         }
         
         [HttpGet]
@@ -57,23 +57,15 @@ namespace LucaHome.Controllers
         {
             if (skill == null)
                 return BadRequest();            
+          
+            Skill skillIn = _mapper.Map<Skill>(skill);
+            SkillDTOOut skillOut = _mapper.Map<SkillDTOOut>(skillIn);
 
-            try
-            {
-                Skill skillIn = _mapper.Map<Skill>(skill);
-                SkillDTOOut skillOut = _mapper.Map<SkillDTOOut>(skillIn);
+            await _skillsService.CreateSkill(skillIn);
 
-                await _skillsService.CreateSkill(skillIn);
+            await cacheStore.EvictByTagAsync("tag-skills", default); // elimina il contenuto cache con il tag "tag-skill"
 
-                await cacheStore.EvictByTagAsync("tag-skills", default); // elimina il contenuto cache con il tag "tag-skill"
-
-                return CreatedAtRoute("GetSkill", new { id = skillIn.Id }, skillOut);
-            } catch 
-            {
-                return StatusCode(500, "Errore durante il salvataggio o l'aggiornamento della cache.");
-            }
-            
-                    
+            return CreatedAtRoute("GetSkill", new { id = skillIn.Id }, skillOut);
         }            
     }
 }
