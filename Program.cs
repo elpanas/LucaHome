@@ -61,14 +61,13 @@ builder.Services.AddAuthorization();
 // CORS
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(
-            build =>
-            {
-                // build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org");                
-                build.AllowAnyOrigin();
-                build.AllowAnyMethod();
-                build.AllowAnyHeader();                          
-            });    
+    options.AddDefaultPolicy(build =>
+    {
+        // build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org")
+        build.AllowAnyOrigin()
+             .AllowAnyMethod()
+             .AllowAnyHeader();
+    }); 
 });
 // -------------------------------------------
 
@@ -134,6 +133,7 @@ builder.Services.AddControllers();
 // AUTOMAPPER
 builder.Services.AddAutoMapper(cfg => {
     cfg.AddProfile<CommentMapper>();
+    cfg.AddProfile<SkillMapper>();
 });
 // -------------------------------------------
 
@@ -155,7 +155,7 @@ else
     {
         app.UseHttpsRedirection();
         app.UseDeveloperExceptionPage(); // Mostra dettagli degli errori in sviluppo
-    }
+}
 
 app.UseCors();
 app.UseOutputCache();
@@ -165,3 +165,6 @@ app.MapGet("/", () => "Welcome in the web service of my website!");
 app.MapControllers();
 
 app.Run();
+
+// istruzione per testing
+public partial class Program { }
