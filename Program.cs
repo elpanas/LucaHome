@@ -8,6 +8,7 @@ using LucaHome.Repositories.Mongo;
 using LucaHome.Repositories.SQL;
 using LucaHome.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -24,6 +25,9 @@ var expireHours = Environment.GetEnvironmentVariable("JWT_EXPIRE_HOURS");
 
 // PROBLEM DETAILS
 builder.Services.AddProblemDetails();
+
+// PROTEZIONE DATI TEMPORANEI
+builder.Services.AddDataProtection().UseEphemeralDataProtectionProvider(); 
 
 // RATE LIMITER
 builder.Services.AddRateLimiter(options =>
@@ -63,8 +67,8 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(build =>
     {
-        // build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org")
-        build.AllowAnyOrigin()
+        build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org")
+        //build.AllowAnyOrigin()
              .AllowAnyMethod()
              .AllowAnyHeader();
     }); 
@@ -72,7 +76,7 @@ builder.Services.AddCors(options =>
 // -------------------------------------------
 
 // DATABASE SETTINGS MONGO
-builder.Services.Configure<MongoSettings>(options =>
+builder.Services.Configure<DBSettings>(options =>
 {
     options.ConnectionStringMongo = Environment.GetEnvironmentVariable("DB_CONNECTION")
                                ?? builder.Configuration["DatabaseSettings:Mongo:ConnectionStringMongo"];
@@ -145,6 +149,8 @@ builder.Services.AddOutputCache(options =>
 
 var app = builder.Build();
 
+app.UseCors();
+
 if (app.Environment.IsProduction())
     {
         app.UseStatusCodePages();
@@ -157,14 +163,14 @@ else
         app.UseDeveloperExceptionPage(); // Mostra dettagli degli errori in sviluppo
 }
 
-app.UseCors();
 app.UseOutputCache();
 app.UseRateLimiter();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapGet("/", () => "Welcome in the web service of my website!");
 app.MapControllers();
 
 app.Run();
 
-// istruzione per testing
+// per il testing
 public partial class Program { }
