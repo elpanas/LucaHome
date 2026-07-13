@@ -75,7 +75,7 @@ builder.Services.AddCors(options =>
 });
 // -------------------------------------------
 
-// DATABASE SETTINGS MONGO
+// DATABASE SETTINGS
 builder.Services.Configure<DBSettings>(options =>
 {
     options.ConnectionStringMongo = Environment.GetEnvironmentVariable("DB_CONNECTION")
@@ -93,31 +93,34 @@ builder.Services.Configure<DBSettings>(options =>
     options.DbProvider = Environment.GetEnvironmentVariable("DB_PROVIDER")
                         ?? builder.Configuration["DatabaseSettings:DbProvider"];
 });
+
+var dbProvider = Environment.GetEnvironmentVariable("DB_PROVIDER")
+                 ?? builder.Configuration["DatabaseSettings:DbProvider"];
 // -------------------------------------------
 
-// DATABASE SETTINGS SQL
-var ConnectionStringSql = Environment.GetEnvironmentVariable("DB_CONNECTION_SQL")
+switch(dbProvider?.Trim().ToLower())
+{
+    case "mongodb":
+        // REPOSITORIES
+        builder.Services.AddScoped<CommentRepoMongo>();
+        builder.Services.AddScoped<SkillRepoMongo>();
+        builder.Services.AddScoped<UserRepoMongo>();        
+        break;
+    case "sql":
+        // REPOSITORIES
+        builder.Services.AddScoped<CommentRepoSQL>();
+        builder.Services.AddScoped<SkillRepoSQL>();
+        builder.Services.AddScoped<UserRepoSQL>();
+
+        var ConnectionStringSql = Environment.GetEnvironmentVariable("DB_CONNECTION_SQL")
                             ?? builder.Configuration["DatabaseSettings:SQL:ConnectionStringSql"];
 
-builder.Services.AddDbContext<SQLDBContext>(options =>
-    options.UseSqlServer(ConnectionStringSql));
-// -------------------------------------------
-
-// REPOSITORIES
-builder.Services.AddScoped<ICommentRepository, CommentRepoMongo>();
-builder.Services.AddScoped<ISkillRepository, SkillRepoMongo>();
-builder.Services.AddScoped<IUserRepository, UserRepoMongo>();
-builder.Services.AddScoped<ICommentRepository, CommentRepoSQL>();
-builder.Services.AddScoped<ISkillRepository, SkillRepoSQL>();
-builder.Services.AddScoped<IUserRepository, UserRepoSQL>();
-
-// Registrazioni concrete per le factory
-builder.Services.AddScoped<CommentRepoMongo>();
-builder.Services.AddScoped<SkillRepoMongo>();
-builder.Services.AddScoped<UserRepoMongo>();
-builder.Services.AddScoped<CommentRepoSQL>();
-builder.Services.AddScoped<SkillRepoSQL>();
-builder.Services.AddScoped<UserRepoSQL>();
+        builder.Services.AddDbContext<SQLDBContext>(options =>
+            options.UseSqlServer(ConnectionStringSql));
+        break;
+    default:
+        throw new Exception("Database non supportato");
+}
 
 // FACTORIES
 builder.Services.AddScoped<ICommentFactory, CommentFactory>();
@@ -128,7 +131,7 @@ builder.Services.AddScoped<IUserFactory, UserFactory>();
 builder.Services.AddScoped<ICommentService,CommentService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<ProjectService>();
+// builder.Services.AddScoped<ProjectService>();
 // -------------------------------------------
 
 // CONTROLLERS
