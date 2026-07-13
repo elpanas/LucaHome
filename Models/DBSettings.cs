@@ -1,6 +1,6 @@
 ﻿namespace LucaHome.Models
 {
-    public class MongoSettings
+    public class DBSettings
     {
         public string ConnectionStringMongo { get; set; } = null!;
         public string DatabaseName { get; set; } = null!;
