@@ -9,7 +9,7 @@ namespace LucaHome.Services
     {
         private readonly IMongoCollection<Project> _projectsCollection;        
 
-        public ProjectService(IOptions<MongoSettings> DbSettings)
+        public ProjectService(IOptions<DBSettings> DbSettings)
         {
             var mongoClient = new MongoClient(
                 DbSettings.Value.ConnectionStringMongo);

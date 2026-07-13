@@ -10,7 +10,7 @@ namespace LucaHome.Repositories.Mongo
     {
         private readonly IMongoCollection<User> _usersCollection;
 
-        public UserRepoMongo(IOptions<MongoSettings> DbSettings)
+        public UserRepoMongo(IOptions<DBSettings> DbSettings)
         {
             var mongoClient = new MongoClient(DbSettings.Value.ConnectionStringMongo);
             var mongoDatabase = mongoClient.GetDatabase(DbSettings.Value.DatabaseName);

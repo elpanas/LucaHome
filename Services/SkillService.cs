@@ -9,7 +9,7 @@ namespace LucaHome.Services
     {
         private readonly ISkillRepository _skillRepository;
 
-        public SkillService(ISkillFactory skillFactory, IOptions<MongoSettings> dbSettings)
+        public SkillService(ISkillFactory skillFactory, IOptions<DBSettings> dbSettings)
         {
             _skillRepository = skillFactory.GetRepository(dbSettings.Value.DbProvider);            
         }

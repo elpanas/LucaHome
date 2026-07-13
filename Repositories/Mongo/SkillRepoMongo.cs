@@ -8,7 +8,7 @@ namespace LucaHome.Repositories.Mongo
     {
         private readonly IMongoCollection<Skill> _skillsCollection;
 
-        public SkillRepoMongo(IOptions<MongoSettings> DbSettings)
+        public SkillRepoMongo(IOptions<DBSettings> DbSettings)
         {
             var mongoClient = new MongoClient(
                 DbSettings.Value.ConnectionStringMongo);

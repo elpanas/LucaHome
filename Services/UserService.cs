@@ -13,7 +13,7 @@ namespace LucaHome.Services
     public class UserService : IUserService
     {
        public readonly IUserRepository _userRepository;
-       public UserService(IUserFactory userFactory, IOptions<MongoSettings> dbSettings)
+       public UserService(IUserFactory userFactory, IOptions<DBSettings> dbSettings)
         {
             _userRepository = userFactory.GetRepository(dbSettings.Value.DbProvider);
         }

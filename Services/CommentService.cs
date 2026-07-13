@@ -9,7 +9,7 @@ namespace LucaHome.Services
     {
        public readonly ICommentRepository _commentRepository;
 
-       public CommentService(ICommentFactory commentFactory, IOptions<MongoSettings> dbSettings)
+       public CommentService(ICommentFactory commentFactory, IOptions<DBSettings> dbSettings)
         {
             _commentRepository = commentFactory.GetRepository(dbSettings.Value.DbProvider);
         }

@@ -8,7 +8,7 @@ namespace LucaHome.Repositories.Mongo
     {
         private readonly IMongoCollection<Comment> _commentsCollection;
 
-        public CommentRepoMongo(IOptions<MongoSettings> DbSettings)
+        public CommentRepoMongo(IOptions<DBSettings> DbSettings)
         { 
             var mongoClient = new MongoClient(
                 DbSettings.Value.ConnectionStringMongo);
