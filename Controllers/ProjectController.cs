@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using LucaHome.Models;
+﻿using LucaHome.Models;
 using LucaHome.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace LucaHome.Controllers
 {           
@@ -46,7 +47,8 @@ namespace LucaHome.Controllers
         
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]     
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]  
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [EnableRateLimiting("strict")]
         public async Task<ActionResult<Project>> Post([FromBody]Project project)
         {
             if (project == null)

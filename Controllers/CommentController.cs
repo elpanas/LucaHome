@@ -24,6 +24,7 @@ namespace LucaHome.Controllers
         [HttpGet("id/{id}", Name = "GetComment")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [EnableRateLimiting("strict")]
         public async Task<ActionResult<CommentDTOOut>> Get(string id)
         {
             var comment = await _commentsService.GetComment(id);

@@ -1,6 +1,7 @@
 ﻿using LucaHome.DTO;
 using LucaHome.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace LucaHome.Controllers
 {
@@ -32,6 +33,7 @@ namespace LucaHome.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [EnableRateLimiting("strict")]
         public async Task<IActionResult> Login(UserDTOIn user)
         {
             if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(user.Password))

@@ -5,6 +5,7 @@ using LucaHome.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace LucaHome.Controllers
 {           
@@ -24,6 +25,7 @@ namespace LucaHome.Controllers
         [HttpGet("{id}", Name = "GetSkill")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [EnableRateLimiting("strict")]
         public async Task<ActionResult<SkillDTOOut>> Get(string id)
         {
             var skill = await _skillsService.GetSkill(id);
@@ -37,7 +39,8 @@ namespace LucaHome.Controllers
         [HttpGet]
         [OutputCache(Duration = 600, Tags = new[] { "tag-skills" })]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]   
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [EnableRateLimiting("strict")]
         public async Task<ActionResult<List<SkillDTOOut>>> Get()
         {    
             var skills = await _skillsService.GetSkills();
