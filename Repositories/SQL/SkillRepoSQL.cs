@@ -21,6 +21,7 @@ namespace LucaHome.Repositories.SQL
             return await _context.Skills
                 .OrderBy(s => s.Category)
                 .ThenBy(s => s.Sequential)
+                .AsNoTracking() // Aggiunto AsNoTracking per migliorare le prestazioni quando non è necessario il tracking delle entità
                 .ToListAsync();
         }
 
