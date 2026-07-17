@@ -3,10 +3,10 @@ using LucaHome.DBs;
 using LucaHome.Factories;
 using LucaHome.Mappers;
 using LucaHome.Models;
-using LucaHome.Repositories;
 using LucaHome.Repositories.Mongo;
 using LucaHome.Repositories.SQL;
 using LucaHome.Services;
+using LucaHome.Services.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.RateLimiting;
@@ -67,8 +67,8 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(build =>
     {
-        build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org")
-        //build.AllowAnyOrigin()
+        //build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org")
+        build.AllowAnyOrigin()
              .AllowAnyMethod()
              .AllowAnyHeader();
     }); 
@@ -98,7 +98,8 @@ var dbProvider = Environment.GetEnvironmentVariable("DB_PROVIDER")
                  ?? builder.Configuration["DatabaseSettings:DbProvider"];
 // -------------------------------------------
 
-switch(dbProvider?.Trim().ToLower())
+// SELECT DATABASE PROVIDER AND REGISTER REPOSITORIES
+switch (dbProvider?.Trim().ToLower())
 {
     case "mongodb":
         // REPOSITORIES
@@ -121,6 +122,7 @@ switch(dbProvider?.Trim().ToLower())
     default:
         throw new Exception("Database non supportato");
 }
+// -------------------------------------------
 
 // FACTORIES
 builder.Services.AddScoped<ICommentFactory, CommentFactory>();
@@ -128,6 +130,7 @@ builder.Services.AddScoped<ISkillFactory, SkillFactory>();
 builder.Services.AddScoped<IUserFactory, UserFactory>();
 
 // SERVICES
+builder.Services.AddSingleton<IPqcService, PqcService>();
 builder.Services.AddScoped<ICommentService,CommentService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -144,11 +147,13 @@ builder.Services.AddAutoMapper(cfg => {
 });
 // -------------------------------------------
 
+// CACHE SETTINGS
 builder.Services.AddOutputCache(options =>
 {
     // policy globale o specifica
     options.AddBasePolicy(builder => builder.Expire(TimeSpan.FromMinutes(10)));
 });
+// -------------------------------------------
 
 var app = builder.Build();
 
@@ -158,18 +163,18 @@ if (app.Environment.IsProduction())
     {
         app.UseStatusCodePages();
         app.UseExceptionHandler(); // Middleware per gestire le eccezioni globalmente
-        app.UseHsts();
-    }
+        app.UseHsts(); // Costringe l'uso di HTTPS
+}
 else
     {
-        app.UseHttpsRedirection();
+        app.UseHttpsRedirection(); // Reindirizza automaticamente le richieste HTTP a HTTPS
         app.UseDeveloperExceptionPage(); // Mostra dettagli degli errori in sviluppo
-}
+    }
 
 app.UseOutputCache();
 app.UseRateLimiter();
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseAuthentication(); // Chi sei
+app.UseAuthorization(); // Cosa puoi fare
 app.MapGet("/", () => "Welcome in the web service of my website!");
 app.MapControllers();
 
