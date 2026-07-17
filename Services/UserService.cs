@@ -19,7 +19,7 @@ namespace LucaHome.Services
         }
 
        public async Task<string?> Login(UserDTOIn user) {
-            if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(user.Password))
+            if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(user.Password) || string.IsNullOrEmpty(user.Ciphertext))
                 return null;
 
             User? userExist = await _userRepository.GetUserByUsername(user.Username);
@@ -30,10 +30,10 @@ namespace LucaHome.Services
 
             if (!passwordValid) return null;
 
-            return GenerateJwtToken(user.Username);
+            return GenerateJwtToken(user.Username, Convert.FromBase64String(user.Ciphertext));
         }
 
-       private string GenerateJwtToken(string username)
+       private string GenerateJwtToken(string username, byte[] sharedSecret)
         {
             // Carica la chiave segreta e il tempo di scadenza dalle variabili d'ambiente
             var key = Environment.GetEnvironmentVariable("JWT_SECRET");
