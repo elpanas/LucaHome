@@ -1,4 +1,12 @@
 <Solution>
-  <Project Path="../LucaHome.Tests/LucaHome.Tests.csproj" Id="8a569208-718f-4b38-b112-9b0caf618f0c" />
-  <Project Path="LucaHome.csproj" />
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="../LucaHome.Tests/LucaHome.Tests.csproj" Id="8a569208-718f-4b38-b112-9b0caf618f0c">
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
+  <Project Path="LucaHome.csproj">
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
 </Solution>
