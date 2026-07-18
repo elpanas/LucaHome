@@ -19,7 +19,7 @@ namespace LucaHome.Repositories.SQL
         public async Task<List<Comment>> GetAllAsync() => 
             await _context.Comments.ToListAsync();
 
-        public async Task<Comment> GetByIdAsync(string id) =>     
+        public async Task<Comment?> GetByIdAsync(string id) =>     
             await _context.Comments.FindAsync(id);        
     }
 }

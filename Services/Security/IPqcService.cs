@@ -4,6 +4,6 @@
     {
         public byte[] GetPublicKeyBytes();
         public void FinalizeHandshake(byte[] clientCiphertext);
-        public byte[] GetSigningKey();
+        public byte[]? GetSigningKey();
     }
 }

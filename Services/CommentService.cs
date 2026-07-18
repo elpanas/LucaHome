@@ -14,7 +14,7 @@ namespace LucaHome.Services
             _commentRepository = commentFactory.GetRepository(dbSettings.Value.DbProvider);
         }
 
-        public async Task<Comment> GetComment(string id) => await _commentRepository.GetByIdAsync(id);
+        public async Task<Comment?> GetComment(string id) => await _commentRepository.GetByIdAsync(id);
         public async Task<List<Comment>> GetComments() => await _commentRepository.GetAllAsync();
         public async Task CreateComment(Comment comment) => await _commentRepository.CreateAsync(comment);
     }

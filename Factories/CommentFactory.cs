@@ -18,7 +18,7 @@ namespace LucaHome.Factories
             return targetDb.ToLower() switch
             {
                 "mongodb" => _serviceProvider.GetRequiredService<CommentRepoMongo>(),
-                "sql" => _serviceProvider.GetRequiredService<CommentRepoSQL>(), 
+                "sql" => _serviceProvider.GetRequiredService<CommentRepoSQL>(),
                 _ => throw new ArgumentException($"Unsupported database type: {targetDb}")
             };
         }

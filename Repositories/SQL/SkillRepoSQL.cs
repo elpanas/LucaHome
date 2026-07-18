@@ -25,7 +25,7 @@ namespace LucaHome.Repositories.SQL
                 .ToListAsync();
         }
 
-        public async Task<Skill> GetByIdAsync(string id) => 
+        public async Task<Skill?> GetByIdAsync(string id) => 
             await _context.Skills.FindAsync(id);
     }
 }

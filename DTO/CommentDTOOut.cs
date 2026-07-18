@@ -2,7 +2,7 @@
 {
     public class CommentDTOOut
     {
-        public string Id { get; set; }
+        public required string Id { get; set; }
         public string Name { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string Content { get; set; } = null!;

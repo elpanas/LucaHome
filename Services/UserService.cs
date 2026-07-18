@@ -2,20 +2,22 @@
 using LucaHome.Factories;
 using LucaHome.Models;
 using LucaHome.Repositories;
+using LucaHome.Services.Security;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 
 namespace LucaHome.Services
 {
     public class UserService : IUserService
     {
-       public readonly IUserRepository _userRepository;
-       public UserService(IUserFactory userFactory, IOptions<DBSettings> dbSettings)
+        public readonly IUserRepository _userRepository;
+        public readonly IJwtSecretService _jwtGeneratorService;
+        public UserService(IUserFactory userFactory, IOptions<DBSettings> dbSettings, IJwtSecretService jwtGeneratorService)
         {
             _userRepository = userFactory.GetRepository(dbSettings.Value.DbProvider);
+            _jwtGeneratorService = jwtGeneratorService;
         }
 
        public async Task<string?> Login(UserDTOIn user) {
@@ -30,19 +32,17 @@ namespace LucaHome.Services
 
             if (!passwordValid) return null;
 
-            return GenerateJwtToken(user.Username, Convert.FromBase64String(user.Ciphertext));
+            return GenerateJwtToken(user.Username);
         }
 
-       private string GenerateJwtToken(string username, byte[] sharedSecret)
+       private string GenerateJwtToken(string username)
         {
             // Carica la chiave segreta e il tempo di scadenza dalle variabili d'ambiente
-            var key = Environment.GetEnvironmentVariable("JWT_SECRET");
             var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
             var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
             var expireHours = int.Parse(Environment.GetEnvironmentVariable("JWT_EXPIRE_HOURS")!);
 
-            // Converte la chiave segreta in un array di byte
-            var keyBytes = Encoding.UTF8.GetBytes(key!);
+            byte[] keyBytes = _jwtGeneratorService.TakeJwtSecretFromFile();
 
             // Crea i claims per il token (info sull'utente)
             var claims = new[]

@@ -20,7 +20,7 @@ namespace LucaHome.Repositories.Mongo
                 DbSettings.Value.SkillCollectionName);
         }
 
-        public async Task<Skill> GetByIdAsync(string id) =>
+        public async Task<Skill?> GetByIdAsync(string id) =>
              await _skillsCollection.Find(s => s.Id == id).FirstAsync();
 
 

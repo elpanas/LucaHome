@@ -12,16 +12,10 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 Env.Load(); // legge .env nella root
-
-// JWT SETTINGS
-var key = Environment.GetEnvironmentVariable("JWT_SECRET");
-var expireHours = Environment.GetEnvironmentVariable("JWT_EXPIRE_HOURS");
-// -------------------------------------------
 
 // PROBLEM DETAILS
 builder.Services.AddProblemDetails();
@@ -44,6 +38,9 @@ builder.Services.AddRateLimiter(options =>
 });
 // -------------------------------------------
 
+// JWT RANDOM
+var jwtGeneratorService = new JwtSecretService();
+
 // JWT AUTHENTICATION
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -55,7 +52,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER"), // emesso dalla mia app
             ValidAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE"), // destinatari previsti (client)
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key!))
+            // IssuerSigningKey = new SymmetricSecurityKey(newJwt)
+
+            // Legge il file dal volume a ogni singola richiesta HTTP
+            IssuerSigningKeyResolver = (token, securityToken, kid, validationParameters) =>
+            {
+                var secretKeyBytes = jwtGeneratorService.TakeJwtSecretFromFile();
+                return [new SymmetricSecurityKey(secretKeyBytes)];
+            }
         };
     });
 // -------------------------------------------
@@ -67,8 +71,8 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(build =>
     {
-        //build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org")
-        build.AllowAnyOrigin()
+        build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org")
+        // build.AllowAnyOrigin()
              .AllowAnyMethod()
              .AllowAnyHeader();
     }); 
@@ -98,6 +102,7 @@ var dbProvider = Environment.GetEnvironmentVariable("DB_PROVIDER")
                  ?? builder.Configuration["DatabaseSettings:DbProvider"];
 // -------------------------------------------
 
+
 // SELECT DATABASE PROVIDER AND REGISTER REPOSITORIES
 switch (dbProvider?.Trim().ToLower())
 {
@@ -107,8 +112,7 @@ switch (dbProvider?.Trim().ToLower())
         builder.Services.AddScoped<SkillRepoMongo>();
         builder.Services.AddScoped<UserRepoMongo>();        
         break;
-    case "sql":
-        // REPOSITORIES
+    case "sql":        // REPOSITORIES
         builder.Services.AddScoped<CommentRepoSQL>();
         builder.Services.AddScoped<SkillRepoSQL>();
         builder.Services.AddScoped<UserRepoSQL>();
@@ -130,6 +134,7 @@ builder.Services.AddScoped<ISkillFactory, SkillFactory>();
 builder.Services.AddScoped<IUserFactory, UserFactory>();
 
 // SERVICES
+builder.Services.AddTransient<IJwtSecretService, JwtSecretService>();
 builder.Services.AddSingleton<IPqcService, PqcService>();
 builder.Services.AddScoped<ICommentService,CommentService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
@@ -148,9 +153,8 @@ builder.Services.AddAutoMapper(cfg => {
 // -------------------------------------------
 
 // CACHE SETTINGS
-builder.Services.AddOutputCache(options =>
-{
-    // policy globale o specifica
+builder.Services.AddOutputCache(options => // policy globale o specifica
+{    
     options.AddBasePolicy(builder => builder.Expire(TimeSpan.FromMinutes(10)));
 });
 // -------------------------------------------
@@ -172,7 +176,7 @@ else
     }
 
 app.UseOutputCache();
-app.UseRateLimiter();
+//app.UseRateLimiter();
 app.UseAuthentication(); // Chi sei
 app.UseAuthorization(); // Cosa puoi fare
 app.MapGet("/", () => "Welcome in the web service of my website!");

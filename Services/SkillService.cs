@@ -14,7 +14,7 @@ namespace LucaHome.Services
             _skillRepository = skillFactory.GetRepository(dbSettings.Value.DbProvider);            
         }
 
-        public async Task<Skill> GetSkill(string id) => await _skillRepository.GetByIdAsync(id);   
+        public async Task<Skill?> GetSkill(string id) => await _skillRepository.GetByIdAsync(id);   
         public async Task<List<Skill>> GetSkills() => await _skillRepository.GetAllAsync();
         public async Task CreateSkill(Skill skill) => await _skillRepository.CreateAsync(skill);
         

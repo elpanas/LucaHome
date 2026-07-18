@@ -20,7 +20,7 @@ namespace LucaHome.Repositories.Mongo
                 DbSettings.Value.CommentCollectionName); 
         }
 
-        public async Task<Comment> GetByIdAsync(string id) =>
+        public async Task<Comment?> GetByIdAsync(string id) =>
              await _commentsCollection.Find(c => c.Id == id).FirstAsync();
 
         public async Task<List<Comment>> GetAllAsync() =>
