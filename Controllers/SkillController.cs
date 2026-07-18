@@ -28,7 +28,7 @@ namespace LucaHome.Controllers
         [EnableRateLimiting("strict")]
         public async Task<ActionResult<SkillDTOOut>> Get(string id)
         {
-            var skill = await _skillsService.GetSkill(id);
+            Skill? skill = await _skillsService.GetSkill(id);
 
             if (skill != null) 
                 return Ok(_mapper.Map<SkillDTOOut>(skill));
@@ -43,7 +43,7 @@ namespace LucaHome.Controllers
         [EnableRateLimiting("strict")]
         public async Task<ActionResult<List<SkillDTOOut>>> Get()
         {    
-            var skills = await _skillsService.GetSkills();
+            List<Skill>? skills = await _skillsService.GetSkills();
 
             if (skills != null)
                 return Ok(skills);
