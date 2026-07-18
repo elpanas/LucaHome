@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using LucaHome.DTO;
 using AutoMapper;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace LucaHome.Controllers
 {           
@@ -43,6 +44,7 @@ namespace LucaHome.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [Authorize]
+        //[OutputCache(Duration = 600, Tags = new[] { "tag-comments" })]
         public async Task<ActionResult<List<CommentDTOOut>>> Get()
         {     
             var comments = await _commentsService.GetComments();
@@ -57,7 +59,7 @@ namespace LucaHome.Controllers
         [EnableRateLimiting("strict")]
         [ProducesResponseType(StatusCodes.Status201Created)]     
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<CommentDTOIn>> Post([FromBody]CommentDTOIn commentIn)
+        public async Task<ActionResult<CommentDTOIn>> Post([FromBody]CommentDTOIn commentIn, IOutputCacheStore cacheStore)
         {
             if (commentIn == null)
                 return BadRequest(commentIn);
@@ -67,6 +69,9 @@ namespace LucaHome.Controllers
           
             var comment = _mapper.Map<Comment>(commentIn);
             await _commentsService.CreateComment(comment);
+
+            //await cacheStore.EvictByTagAsync("tag-comments", default); // Invalida la cache dei commenti
+
             return CreatedAtRoute("GetComment", new { id = comment.Id }, comment);
                        
         }            
