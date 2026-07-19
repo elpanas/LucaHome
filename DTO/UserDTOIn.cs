@@ -5,5 +5,6 @@
         public string? Username { get; set; }
         public string? Password { get; set; }
         public string? Ciphertext { get; set; } // Ciphertext PQC
+        public string? Signature { get; set; } // Signature PQC
     }
 }
