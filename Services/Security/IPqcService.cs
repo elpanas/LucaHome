@@ -3,7 +3,9 @@
     public interface IPqcService
     {
         public byte[] GetPublicKeyBytes();
-        public void FinalizeHandshake(byte[] clientCiphertext);
-        public byte[]? GetSigningKey();
+        public byte[] FinalizeHandshake(byte[] clientCiphertext);
+        public byte[] GetSignatureBytes(string credentials, byte[] sharedSecret);
+
+        //public byte[]? GetSigningKey();
     }
 }

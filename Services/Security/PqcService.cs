@@ -1,5 +1,7 @@
 ﻿using KyberNET.Api;
 using KyberNET.Keys;
+using LucaHome.Services.Security;
+using System.Security.Cryptography;
 
 namespace LucaHome.Services.Security
 {
@@ -8,7 +10,7 @@ namespace LucaHome.Services.Security
         // Chiavi pubblica, privata e shared secret dell'utente
         private readonly byte[] _serverPublicKey;
         private readonly byte[] _serverPrivateKey;
-        private byte[]? _currentSharedSecret;
+        //private byte[]? _currentSharedSecret;
 
         public PqcService()
         {
@@ -21,15 +23,25 @@ namespace LucaHome.Services.Security
         // Metodo per esportare la chiave pubblica da inviare al client
         public byte[] GetPublicKeyBytes() => _serverPublicKey;
 
-        public void FinalizeHandshake(byte[] clientCiphertext)
-        {            
+        // Metodo per decapsulare il ciphertext ricevuto dal client e ottenere il shared secret
+        public byte[] FinalizeHandshake(byte[] clientCiphertext)
+        {
             // La libreria decifra il ciphertext usando la chiave privata generata all'avvio
             var convertedPrivateKey = KyberDecapsulationKey.FromBytes(_serverPrivateKey);
             var convertedCyphertext = KyberCipherText.FromBytes(clientCiphertext);
-            
-            _currentSharedSecret = convertedPrivateKey.Decapsulate(convertedCyphertext);
+
+            return convertedPrivateKey.Decapsulate(convertedCyphertext); // Restituisce il shared secret
         }
 
-        public byte[]? GetSigningKey() => _currentSharedSecret;
+        public byte[] GetSignatureBytes(string credentials, byte[] sharedSecret)
+        {
+            var hmac = new HMACSHA256(sharedSecret);
+
+            byte[] credentialsBytes = System.Text.Encoding.UTF8.GetBytes(credentials);
+            return hmac.ComputeHash(credentialsBytes);
+
+        }
+
+        //public byte[]? GetSigningKey() => _currentSharedSecret;
     }
 }
