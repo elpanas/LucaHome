@@ -61,6 +61,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 return [new SymmetricSecurityKey(secretKeyBytes)];
             }
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (context.Request.Cookies.ContainsKey("AuthToken"))
+                {
+                    context.Token = context.Request.Cookies["AuthToken"];
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 // -------------------------------------------
 
@@ -71,11 +83,12 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(build =>
     {
-        build.WithOrigins("https://lucapanariello.altervista.org", "http://lucapanariello.altervista.org")
-        // build.AllowAnyOrigin()
+        //build.WithOrigins("https://lucapanariello.altervista.org:8443")
+        build.WithOrigins("http://localhost:4321")
              .AllowAnyMethod()
-             .AllowAnyHeader();
-    }); 
+             .AllowAnyHeader()
+             .AllowCredentials();
+    });
 });
 // -------------------------------------------
 
