@@ -44,29 +44,30 @@ namespace LucaHome.Controllers
         [EnableRateLimiting("strict")]
         public async Task<IActionResult> Login(UserDTOIn user)
         {
-            if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(user.Password) || string.IsNullOrEmpty(user.Ciphertext))
-                return Unauthorized();
-
-            // Aggiunto handshake
-            try
+            // Controllo formale dell'input (incluso il nuovo campo Signature)
+            if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(user.Password) ||
+                string.IsNullOrEmpty(user.Ciphertext) || string.IsNullOrEmpty(user.Signature))
             {
-                // Convertiamo il ciphertext in arrivo dal front da Base64 a byte[]
-                byte[] ciphertextBytes = Convert.FromBase64String(user.Ciphertext);
-
-                // Chiamiamo il tuo metodo originale!
-                _pqcService.FinalizeHandshake(ciphertextBytes);
-            }
-            catch (Exception)
-            {
-                // Se la decapsulazione fallisce (es. chiavi non corrispondenti o corrotte), blocchiamo subito
                 return Unauthorized();
             }
 
+            var expireHours = int.Parse(Environment.GetEnvironmentVariable("JWT_EXPIRE_HOURS")!);
+
+            // Il servizio fa tutto il lavoro sporco
             var token = await _userService.Login(user);
 
             if (token == null) return Unauthorized();
 
-            return Ok(new { Token = token });
-        }        
+            // Aggiungo il cookie con il token
+            Response.Cookies.Append("AuthToken", token, new CookieOptions
+            {
+                HttpOnly = true, // JS non può leggere il cookie
+                Secure = true, // il browser può inviarlo solo tramite HTTPS
+                SameSite = SameSiteMode.Strict, // invia il cookie solo se la req proviene dallo stesso dominio che l'ha impostato
+                Expires = DateTime.UtcNow.AddHours(expireHours) // scadenza del cookie
+            });
+
+            return Ok(new { message = "Login effettuato con successo" });
+        }
     }
 }
