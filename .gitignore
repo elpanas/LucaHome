@@ -367,3 +367,5 @@ FodyWeavers.xsd
 
 # Files per NAS
 *.tar
+
+LucaHome.Prod/

@@ -9,9 +9,9 @@ using LucaHome.Services;
 using LucaHome.Services.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,18 +21,29 @@ Env.Load(); // legge .env nella root
 builder.Services.AddProblemDetails();
 
 // PROTEZIONE DATI TEMPORANEI
-builder.Services.AddDataProtection().UseEphemeralDataProtectionProvider(); 
+builder.Services.AddDataProtection().UseEphemeralDataProtectionProvider();
 
 // RATE LIMITER
 builder.Services.AddRateLimiter(options =>
 {
-    options.AddFixedWindowLimiter("strict", opt =>
-    {
-        opt.Window = TimeSpan.FromMinutes(5); // Finestra di 5 minuti
-        opt.PermitLimit = 2; // Massimo 2 messaggi per finestra
-        opt.QueueLimit = 0; // Non accodare richieste in eccesso
-        //opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-    });
+    options.AddPolicy("LoginPolicy", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter("login", _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 5,
+            Window = TimeSpan.FromMinutes(10),
+            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+            QueueLimit = 0
+        }));
+
+    // Policy per le API (molto più larga)
+    options.AddPolicy("ApiPolicy", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter("api", _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 100,
+            Window = TimeSpan.FromMinutes(1),
+            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+            QueueLimit = 0
+        }));
 
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
@@ -84,7 +95,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(build =>
     {
         //build.WithOrigins("https://lucapanariello.altervista.org:8443")
-        build.WithOrigins("http://localhost:4321")
+        build.WithOrigins("http://localhost:4321", "http://localhost:4200")
              .AllowAnyMethod()
              .AllowAnyHeader()
              .AllowCredentials();
@@ -123,7 +134,7 @@ switch (dbProvider?.Trim().ToLower())
         // REPOSITORIES
         builder.Services.AddScoped<CommentRepoMongo>();
         builder.Services.AddScoped<SkillRepoMongo>();
-        builder.Services.AddScoped<UserRepoMongo>();        
+        builder.Services.AddScoped<UserRepoMongo>();
         break;
     case "sql":        // REPOSITORIES
         builder.Services.AddScoped<CommentRepoSQL>();
@@ -149,7 +160,7 @@ builder.Services.AddScoped<IUserFactory, UserFactory>();
 // SERVICES
 builder.Services.AddTransient<IJwtSecretService, JwtSecretService>();
 builder.Services.AddSingleton<IPqcService, PqcService>();
-builder.Services.AddScoped<ICommentService,CommentService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddScoped<IUserService, UserService>();
 // builder.Services.AddScoped<ProjectService>();
@@ -159,7 +170,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddControllers();
 
 // AUTOMAPPER
-builder.Services.AddAutoMapper(cfg => {
+builder.Services.AddAutoMapper(cfg =>
+{
     cfg.AddProfile<CommentMapper>();
     cfg.AddProfile<SkillMapper>();
 });
@@ -167,7 +179,7 @@ builder.Services.AddAutoMapper(cfg => {
 
 // CACHE SETTINGS
 builder.Services.AddOutputCache(options => // policy globale o specifica
-{    
+{
     options.AddBasePolicy(builder => builder.Expire(TimeSpan.FromMinutes(10)));
 });
 // -------------------------------------------
@@ -177,16 +189,16 @@ var app = builder.Build();
 app.UseCors();
 
 if (app.Environment.IsProduction())
-    {
-        app.UseStatusCodePages();
-        app.UseExceptionHandler(); // Middleware per gestire le eccezioni globalmente
-        app.UseHsts(); // Costringe l'uso di HTTPS
+{
+    app.UseStatusCodePages();
+    app.UseExceptionHandler(); // Middleware per gestire le eccezioni globalmente
+    app.UseHsts(); // Costringe l'uso di HTTPS
 }
 else
-    {
-        app.UseHttpsRedirection(); // Reindirizza automaticamente le richieste HTTP a HTTPS
-        app.UseDeveloperExceptionPage(); // Mostra dettagli degli errori in sviluppo
-    }
+{
+    app.UseHttpsRedirection(); // Reindirizza automaticamente le richieste HTTP a HTTPS
+    app.UseDeveloperExceptionPage(); // Mostra dettagli degli errori in sviluppo
+}
 
 app.UseOutputCache();
 //app.UseRateLimiter();
