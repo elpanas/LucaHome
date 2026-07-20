@@ -28,6 +28,19 @@ namespace LucaHome.Services
 
         public async Task<string?> Login(UserDTOIn user)
         {
+            // 2. Validazione delle credenziali
+            User? userExist = await _userRepository.GetUserByUsername(user.Username!);
+            if (userExist == null) return null;
+
+            bool passwordValid = BCrypt.Net.BCrypt.Verify(user.Password, userExist.Password);
+            if (!passwordValid) return null;
+
+            // 3. Rilascio del token di autorizzazione
+            return GenerateJwtToken(user.Username!);
+        }
+
+        public async Task<bool> Handshake(UserDTOIn user)
+        {
             // 1. Validazione crittografica (Handshake Post-Quantistico)
             try
             {
@@ -39,30 +52,23 @@ namespace LucaHome.Services
                 byte[] localSharedSecret = _pqcService.FinalizeHandshake(ciphertextBytes);
 
                 // Calcolo e verifica HMAC
-                byte[] expectedSignature = _pqcService.GetSignatureBytes(user.Username + user.Password, localSharedSecret);                
+                byte[] expectedSignature = _pqcService.GetSignatureBytes(user.Username + user.Password, localSharedSecret);
 
-                if (!CryptographicOperations.FixedTimeEquals(expectedSignature, clientSignature))
-                {
-                    return null; // Firma non corrispondente (Kyber fallito o manipolato)
-                }
+                // Ripulisce l'array per sicurezza
+                Array.Clear(localSharedSecret);
+
+                // Firma non corrispondente (Kyber fallito o manipolato)
+                if (!CryptographicOperations.FixedTimeEquals(expectedSignature, clientSignature)) return false;
+
+                return true;
             }
             catch (Exception)
             {
-                return null; // Errore di parsing o decapsulazione
+                return false; // Errore di parsing o decapsulazione
             }
-
-            // 2. Validazione delle credenziali (Classica)
-            User? userExist = await _userRepository.GetUserByUsername(user.Username!);
-            if (userExist == null) return null;
-
-            bool passwordValid = BCrypt.Net.BCrypt.Verify(user.Password, userExist.Password);
-            if (!passwordValid) return null;
-
-            // 3. Rilascio del token di autorizzazione
-            return GenerateJwtToken(user.Username!);
         }
 
-        private string GenerateJwtToken(string username)
+        public string GenerateJwtToken(string username)
         {
             var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
             var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");

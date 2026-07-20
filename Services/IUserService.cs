@@ -6,6 +6,7 @@ namespace LucaHome.Services
     public interface IUserService
     {
         Task<string?> Login(UserDTOIn user);
-        // string GenerateJwtToken(string username);
+        Task<bool> Handshake(UserDTOIn user);
+        string GenerateJwtToken(string username);
     }
 }
