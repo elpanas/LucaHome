@@ -50,7 +50,11 @@ builder.Services.AddRateLimiter(options =>
 // -------------------------------------------
 
 // JWT RANDOM
-var jwtGeneratorService = new JwtSecretService();
+// DB per salvare refresh token
+builder.Services.AddMemoryCache();
+
+// Servizio gestione JWT
+builder.Services.AddTransient<IJwtService, JwtService>();
 
 // JWT AUTHENTICATION
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -63,23 +67,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER"), // emesso dalla mia app
             ValidAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE"), // destinatari previsti (client)
-            // IssuerSigningKey = new SymmetricSecurityKey(newJwt)
-
-            // Legge il file dal volume a ogni singola richiesta HTTP
-            IssuerSigningKeyResolver = (token, securityToken, kid, validationParameters) =>
-            {
-                var secretKeyBytes = jwtGeneratorService.TakeJwtSecretFromFile();
-                return [new SymmetricSecurityKey(secretKeyBytes)];
-            }
+            IssuerSigningKeyResolver = JwtService.CurrentJwtSecret
         };
 
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
             {
-                if (context.Request.Cookies.ContainsKey("AuthToken"))
+                if (context.Request.Cookies.ContainsKey("AccessToken"))
                 {
-                    context.Token = context.Request.Cookies["AuthToken"];
+                    context.Token = context.Request.Cookies["AccessToken"];
                 }
                 return Task.CompletedTask;
             }
@@ -94,7 +91,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(build =>
     {
-        //build.WithOrigins("https://lucapanariello.altervista.org:8443")
+        // build.WithOrigins("https://lucapanariello.altervista.org")
         build.WithOrigins("http://localhost:4321", "http://localhost:4200")
              .AllowAnyMethod()
              .AllowAnyHeader()
@@ -158,7 +155,6 @@ builder.Services.AddScoped<ISkillFactory, SkillFactory>();
 builder.Services.AddScoped<IUserFactory, UserFactory>();
 
 // SERVICES
-builder.Services.AddTransient<IJwtSecretService, JwtSecretService>();
 builder.Services.AddSingleton<IPqcService, PqcService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
