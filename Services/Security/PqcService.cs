@@ -1,6 +1,5 @@
 ﻿using KyberNET.Api;
 using KyberNET.Keys;
-using LucaHome.Services.Security;
 using System.Security.Cryptography;
 
 namespace LucaHome.Services.Security

@@ -4,9 +4,6 @@ using LucaHome.Models;
 using LucaHome.Repositories;
 using LucaHome.Services.Security;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
 using System.Security.Cryptography;
 
 namespace LucaHome.Services
@@ -14,29 +11,28 @@ namespace LucaHome.Services
     public class UserService : IUserService
     {
         public readonly IUserRepository _userRepository;
-        public readonly IJwtSecretService _jwtGeneratorService;
+        public readonly IJwtService _jwtService;
         public readonly IPqcService _pqcService;
         public UserService(IUserFactory userFactory,
                            IOptions<DBSettings> dbSettings,
-                           IJwtSecretService jwtGeneratorService,
+                           IJwtService jwtService,
                            IPqcService pqcService)
         {
             _userRepository = userFactory.GetRepository(dbSettings.Value.DbProvider);
-            _jwtGeneratorService = jwtGeneratorService;
+            _jwtService = jwtService;
             _pqcService = pqcService;
         }
 
-        public async Task<string?> Login(UserDTOIn user)
+        public async Task<bool> Login(UserDTOIn user)
         {
             // 2. Validazione delle credenziali
             User? userExist = await _userRepository.GetUserByUsername(user.Username!);
-            if (userExist == null) return null;
+            if (userExist == null) return false;
 
             bool passwordValid = BCrypt.Net.BCrypt.Verify(user.Password, userExist.Password);
-            if (!passwordValid) return null;
+            if (!passwordValid) return false;
 
-            // 3. Rilascio del token di autorizzazione
-            return GenerateJwtToken(user.Username!);
+            return true;
         }
 
         public async Task<bool> Handshake(UserDTOIn user)
@@ -66,42 +62,6 @@ namespace LucaHome.Services
             {
                 return false; // Errore di parsing o decapsulazione
             }
-        }
-
-        public string GenerateJwtToken(string username)
-        {
-            var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
-            var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
-            var expireHours = int.Parse(Environment.GetEnvironmentVariable("JWT_EXPIRE_HOURS")!);
-
-            byte[] keyBytes = _jwtGeneratorService.TakeJwtSecretFromFile();
-
-            // Crea la firma del server con il jwt_secret usando l'algoritmo Hmac ed SHA256
-            // Come a dire: "io, il server, ho creato questo token a partire dal JWT_SECRET che conosco solo io
-            var creds = new SigningCredentials(
-                new SymmetricSecurityKey(keyBytes),
-                SecurityAlgorithms.HmacSha256
-            );
-
-            // Crea un oggetto con dati specifici dell'utente
-            var claims = new ClaimsIdentity(
-                [
-                    new Claim(JwtRegisteredClaimNames.Sub, username),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                ]);
-
-            // Qui mette insieme tutte le informaioni
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Issuer = issuer,
-                Audience = audience, // gruppo di destinatari
-                Subject = claims, // utente a cui è riferito il token
-                Expires = TimeProvider.System.GetUtcNow().AddHours(expireHours).UtcDateTime,
-                SigningCredentials = creds // firma del server
-            };
-
-            // Crea finalmente il token in base ai dati forniti
-            return new JsonWebTokenHandler().CreateToken(tokenDescriptor);
         }
     }
 }
